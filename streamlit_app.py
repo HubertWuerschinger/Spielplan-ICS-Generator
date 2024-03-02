@@ -1,15 +1,19 @@
 import streamlit as st
-import cv2
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
-
 import pandas as pd
-import numpy as np
 from PIL import Image
 import io
+import re
+
+# Funktion zur Bereinigung von nicht-druckbaren Zeichen
+def remove_non_printable_chars(text):
+    printable_pattern = re.compile('[^\s\w\d.,;:!?"\'()%-]+', re.UNICODE)
+    return printable_pattern.sub('', text)
 
 # OCR-Konfiguration
-pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract' # Pfad zu Tesseract-Executable anpassen
+# Hinweis: Ändern Sie den Pfad entsprechend Ihrer Tesseract-Installation
+pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'  # Für Linux/Mac
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Für Windows
 
 # Streamlit-Seitenlayout
 st.title("Text- und Zahlen-Erkennung")
@@ -23,16 +27,18 @@ if uploaded_file is not None:
     
     # Bild in Text umwandeln
     text = pytesseract.image_to_string(image)
+    cleaned_text = remove_non_printable_chars(text)
+
     st.write("Erkannter Text:")
-    st.write(text)
+    st.write(cleaned_text)
 
     # Text in DataFrame umwandeln
-    data = {'Text': text.split('\n')}
+    data = {'Text': cleaned_text.split('\n')}
     df = pd.DataFrame(data)
     st.write(df)
 
     # Excel-Download
     towrite = io.BytesIO()
-    df.to_excel(towrite, index=False, header=True)  # Entfernen von encoding='utf-8'
+    df.to_excel(towrite, index=False, header=True)
     towrite.seek(0)
     st.download_button(label='Excel-Datei herunterladen', data=towrite, file_name='text_data.xlsx', mime='application/vnd.ms-excel')
