@@ -1,1 +1,1 @@
-
+pip install streamlit opencv-python-headless pytesseract pandas openpyxl
