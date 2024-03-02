@@ -33,6 +33,6 @@ if uploaded_file is not None:
 
     # Excel-Download
     towrite = io.BytesIO()
-    df.to_excel(towrite, encoding='utf-8', index=False, header=True)
+    df.to_excel(towrite, index=False, header=True)  # Entfernen von encoding='utf-8'
     towrite.seek(0)
     st.download_button(label='Excel-Datei herunterladen', data=towrite, file_name='text_data.xlsx', mime='application/vnd.ms-excel')
