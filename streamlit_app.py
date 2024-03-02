@@ -32,16 +32,17 @@ if uploaded_file is not None:
     # Bereinigen Sie den Text von nicht-druckbaren Zeichen
     cleaned_text = remove_non_printable_chars(text)
 
-    st.write("Erkannter Text:")
-    st.write(cleaned_text)
+    # Textbearbeitungsfeld
+    st.write("Erkannter Text (bearbeitbar):")
+    edited_text = st.text_area("", cleaned_text, height=300)
 
-    # Text in DataFrame umwandeln
-    data = {'Text': cleaned_text.split('\n')}
-    df = pd.DataFrame(data)
-    st.write(df)
+    if st.button('Text in Excel umwandeln'):
+        # Text in DataFrame umwandeln
+        data = {'Text': edited_text.split('\n')}
+        df = pd.DataFrame(data)
 
-    # Excel-Download
-    towrite = io.BytesIO()
-    df.to_excel(towrite, index=False, header=True)
-    towrite.seek(0)
-    st.download_button(label='Excel-Datei herunterladen', data=towrite, file_name='text_data.xlsx', mime='application/vnd.ms-excel')
+        # Excel-Download
+        towrite = io.BytesIO()
+        df.to_excel(towrite, index=False, header=True)
+        towrite.seek(0)
+        st.download_button(label='Excel-Datei herunterladen', data=towrite, file_name='text_data.xlsx', mime='application/vnd.ms-excel')
