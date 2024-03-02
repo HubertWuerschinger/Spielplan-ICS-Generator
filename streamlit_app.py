@@ -5,10 +5,7 @@ from PIL import Image
 import io
 import re
 
-def remove_illegal_chars_for_excel(text):
-    # Entfernt alle Zeichen, die in Excel-Tabellen nicht zulässig sind
-    # Hier werden alle Zeichen außer druckbaren ASCII-Zeichen entfernt
-    return re.sub(r'[^\x20-\x7E]', '', text)
+
 
 # OCR-Konfiguration
 # Hinweis: Ändern Sie den Pfad entsprechend Ihrer Tesseract-Installation
@@ -33,6 +30,10 @@ if uploaded_file is not None:
     st.write(cleaned_text)
 
     # Text in DataFrame umwandeln
+    def remove_illegal_chars_for_excel(text):
+        # Entfernt alle Zeichen, die in Excel-Tabellen nicht zulässig sind
+        # Hier werden alle Zeichen außer druckbaren ASCII-Zeichen entfernt
+        return re.sub(r'[^\x20-\x7E]', '', text)
     #data = {'Text': cleaned_text.split('\n')}
     
     
