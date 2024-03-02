@@ -10,10 +10,13 @@ from docx import Document
 def remove_non_printable_chars(text):
     return re.sub(r'[^\x20-\x7E]', '', text)
 
-def create_word_document(text, template_path, save_path):
-    doc = Document(template_path)
+def create_word_document_in_memory(text):
+    doc = Document()
     doc.add_paragraph(text)
-    doc.save(save_path)
+    doc_io = io.BytesIO()
+    doc.save(doc_io)
+    doc_io.seek(0)
+    return doc_io
 
 # OCR-Konfiguration
 # Hinweis: Ändern Sie den Pfad entsprechend Ihrer Tesseract-Installation
@@ -40,15 +43,13 @@ if uploaded_file is not None:
     st.write("Erkannter Text (bearbeitbar):")
     edited_text = st.text_area("", cleaned_text, height=300)
 
-    # Erstellen eines Word-Dokuments
-    if st.button('In Word-Dokument umwandeln'):
-        template_path = 'template.docx'  # Pfad zur Vorlage
-        save_path = 'output.docx'
-        create_word_document(edited_text, template_path, save_path)
-        st.success('Word-Dokument erfolgreich erstellt!')
+    # Erstellen und Herunterladen des Word-Dokuments
+    if st.button('Word-Dokument erstellen und herunterladen'):
+        doc_io = create_word_document_in_memory(edited_text)
+        st.download_button(label="Word-Dokument herunterladen", data=doc_io, file_name="text_document.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
     # Speichern als Excel-Datei
-    if st.button('In Excel-Datei umwandeln'):
+    if st.button('Excel-Datei erstellen und herunterladen'):
         data = {'Text': edited_text.split('\n')}
         df = pd.DataFrame(data)
 
