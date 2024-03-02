@@ -1,7 +1,7 @@
 import streamlit as st
 import cv2
 import pytesseract
-#pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
 
 import pandas as pd
 import numpy as np
