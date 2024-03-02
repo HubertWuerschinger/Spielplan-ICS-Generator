@@ -5,10 +5,10 @@ from PIL import Image
 import io
 import re
 
-# Funktion zur Bereinigung von nicht-druckbaren Zeichen
-def remove_non_printable_chars(text):
-    printable_pattern = re.compile('[^\s\w\d.,;:!?"\'()%-]+', re.UNICODE)
-    return printable_pattern.sub('', text)
+def remove_illegal_chars_for_excel(text):
+    # Entfernt alle Zeichen, die in Excel-Tabellen nicht zulässig sind
+    # Hier werden alle Zeichen außer druckbaren ASCII-Zeichen entfernt
+    return re.sub(r'[^\x20-\x7E]', '', text)
 
 # OCR-Konfiguration
 # Hinweis: Ändern Sie den Pfad entsprechend Ihrer Tesseract-Installation
@@ -33,10 +33,20 @@ if uploaded_file is not None:
     st.write(cleaned_text)
 
     # Text in DataFrame umwandeln
+    #data = {'Text': cleaned_text.split('\n')}
+    
+    
+
+    # Angenommen, 'text' enthält Ihren OCR-erfassten Text
+    cleaned_text = remove_illegal_chars_for_excel(text)
+
+    # Erstellen Sie die DataFrame mit dem bereinigten Text
     data = {'Text': cleaned_text.split('\n')}
     df = pd.DataFrame(data)
     st.write(df)
 
+
+    
     # Excel-Download
     towrite = io.BytesIO()
     df.to_excel(towrite, index=False, header=True)
