@@ -10,9 +10,18 @@ from docx import Document
 def remove_non_printable_chars(text):
     return re.sub(r'[^\x20-\x7E]', '', text)
 
-def create_word_document_in_memory(text, template_path):
+def insert_text_in_template(text, template_path):
     doc = Document(template_path)
-    doc.add_paragraph(text)
+    # Gehe zur gewünschten Zeile (Zeile 8) und füge Text ein
+    # Beachten Sie, dass Python bei 0 zu zählen beginnt, daher ist Zeile 8 in der Liste die 7. Position
+    if len(doc.paragraphs) >= 8:
+        para = doc.paragraphs[7]
+        para.add_run(text)
+    else:
+        # Falls weniger als 8 Zeilen vorhanden sind, wird der Text am Ende hinzugefügt
+        doc.add_paragraph(text)
+
+    # Speichere das Dokument im Speicher
     doc_io = io.BytesIO()
     doc.save(doc_io)
     doc_io.seek(0)
