@@ -42,8 +42,8 @@ if uploaded_file is not None:
 
     # Erstellen eines Word-Dokuments
     if st.button('In Word-Dokument umwandeln'):
-        template_path = 'pfad/zu/Ihrer/template.docx'  # Pfad zur Vorlage
-        save_path = 'pfad/wo/sie/speichern/möchten/output.docx'
+        template_path = 'template.docx'  # Pfad zur Vorlage
+        save_path = 'output.docx'
         create_word_document(edited_text, template_path, save_path)
         st.success('Word-Dokument erfolgreich erstellt!')
 
