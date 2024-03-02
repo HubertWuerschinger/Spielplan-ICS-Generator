@@ -4,12 +4,16 @@ import pandas as pd
 from PIL import Image
 import io
 import re
+from docx import Document
 
 # Funktion zur Bereinigung von nicht-druckbaren Zeichen
 def remove_non_printable_chars(text):
-    # Entfernt alle Zeichen, die in Excel-Tabellen nicht zulässig sind
-    # Hier werden alle Zeichen außer druckbaren ASCII-Zeichen entfernt
     return re.sub(r'[^\x20-\x7E]', '', text)
+
+def create_word_document(text, template_path, save_path):
+    doc = Document(template_path)
+    doc.add_paragraph(text)
+    doc.save(save_path)
 
 # OCR-Konfiguration
 # Hinweis: Ändern Sie den Pfad entsprechend Ihrer Tesseract-Installation
@@ -36,12 +40,18 @@ if uploaded_file is not None:
     st.write("Erkannter Text (bearbeitbar):")
     edited_text = st.text_area("", cleaned_text, height=300)
 
-    if st.button('Text in Excel umwandeln'):
-        # Text in DataFrame umwandeln
+    # Erstellen eines Word-Dokuments
+    if st.button('In Word-Dokument umwandeln'):
+        template_path = 'pfad/zu/Ihrer/template.docx'  # Pfad zur Vorlage
+        save_path = 'pfad/wo/sie/speichern/möchten/output.docx'
+        create_word_document(edited_text, template_path, save_path)
+        st.success('Word-Dokument erfolgreich erstellt!')
+
+    # Speichern als Excel-Datei
+    if st.button('In Excel-Datei umwandeln'):
         data = {'Text': edited_text.split('\n')}
         df = pd.DataFrame(data)
 
-        # Excel-Download
         towrite = io.BytesIO()
         df.to_excel(towrite, index=False, header=True)
         towrite.seek(0)
