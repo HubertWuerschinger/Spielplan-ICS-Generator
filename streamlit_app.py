@@ -25,6 +25,9 @@ uploaded_file = st.file_uploader("Bild hochladen", type=["jpg", "png", "jpeg"])
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption='Hochgeladenes Bild', use_column_width=True)
+    
+    # Bild in Text umwandeln
+    text = pytesseract.image_to_string(image)
 
     # Bereinigen Sie den Text von nicht-druckbaren Zeichen
     cleaned_text = remove_non_printable_chars(text)
