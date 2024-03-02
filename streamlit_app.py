@@ -54,10 +54,10 @@ if uploaded_file is not None:
     edited_text = st.text_area("", cleaned_text, height=300)
 
 
-    # Erstellen und Herunterladen des Word-Dokuments
+ # Erstellen und Herunterladen des Word-Dokuments
     if st.button('Word-Dokument erstellen und herunterladen'):
         template_path = 'template.docx'  # Pfad zur Vorlage
-        doc_io = create_word_document_in_memory(edited_text, template_path)
+        doc_io = insert_text_in_template(edited_text, template_path)
         st.download_button(label="Word-Dokument herunterladen", data=doc_io, file_name="text_document.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
     # Speichern als Excel-Datei
