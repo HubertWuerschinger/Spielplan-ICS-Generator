@@ -3,4 +3,3 @@ pytesseract
 pandas
 openpyxl
 tesseract-ocr
-tesseract-ocr-por
