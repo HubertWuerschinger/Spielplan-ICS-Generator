@@ -47,7 +47,7 @@ if uploaded_file is not None:
 
     # Erstellen und Herunterladen des Word-Dokuments
     if st.button('Word-Dokument erstellen und herunterladen'):
-        template_path = 'pfad/zu/Ihrer/template.docx'  # Pfad zur Vorlage
+        template_path = 'template.docx'  # Pfad zur Vorlage
         doc_io = create_word_document_in_memory(edited_text, template_path)
         st.download_button(label="Word-Dokument herunterladen", data=doc_io, file_name="text_document.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
