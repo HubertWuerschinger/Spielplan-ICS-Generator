@@ -2,3 +2,5 @@ opencv-python-headless
 pytesseract
 pandas
 openpyxl
+tesseract-ocr
+tesseract-ocr-por
