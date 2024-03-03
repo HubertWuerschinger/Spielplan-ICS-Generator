@@ -11,8 +11,8 @@ st.set_page_config(layout="wide")
 st.title("Arbeitszeiten und Kostenberechnung")
 
 # Initialisiere Session State für die Datenspeicherung, falls noch nicht vorhanden
-if 'data' not in st.session_state:
-    st.session_state.data = []
+if 'data' not in st.session_state or not st.session_state.data:
+    st.session_state.data = [{"Position": "", "Name": "", "Arbeitszeit": 0.0, "Von": datetime.time(0, 0), "Bis": datetime.time(0, 0), "Kostenfaktor": 0.0}]
 
 # Funktion zum Hinzufügen einer neuen Zeile
 def add_row():
@@ -20,7 +20,7 @@ def add_row():
 
 # Funktion zum Löschen einer Zeile
 def delete_row(index):
-    if index < len(st.session_state.data):
+    if len(st.session_state.data) > 1 and index < len(st.session_state.data):
         del st.session_state.data[index]
 
 # Dynamische Anzeige von Eingabefeldern
