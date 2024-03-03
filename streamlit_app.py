@@ -7,35 +7,40 @@ import datetime
 # Setze das Seitenlayout auf breit
 st.set_page_config(layout="wide")
 
-# Titel der Anwendung
 st.title("Arbeitszeiten und Kostenberechnung")
 
-# Initialisiere Session State für die Datenspeicherung, falls noch nicht vorhanden
+# Initialisiere Session State für die Datenspeicherung
 if 'data' not in st.session_state:
-    st.session_state['data'] = [{'Datum': datetime.date.today(), 'Position': '', 'Name': '', 'Arbeitszeit': 0.0, 'Von': datetime.time(0, 0), 'Bis': datetime.time(0, 0), 'Kostenfaktor': 0.0}]
+    st.session_state.data = []
+    st.session_state.dates = []
 
 # Funktion zum Hinzufügen einer neuen Zeile
 def add_row():
-    st.session_state['data'].append({'Datum': datetime.date.today(), 'Position': '', 'Name': '', 'Arbeitszeit': 0.0, 'Von': datetime.time(0, 0), 'Bis': datetime.time(0, 0), 'Kostenfaktor': 0.0})
+    st.session_state.data.append({'Position': '', 'Name': '', 'Arbeitszeit': 0.0, 'Von': datetime.time(0, 0), 'Bis': datetime.time(0, 0), 'Kostenfaktor': 0.0})
+    st.session_state.dates.append(datetime.date.today())
 
 # Funktion zum Löschen einer Zeile
 def delete_row(index):
-    if len(st.session_state['data']) > 1:
-        st.session_state['data'].pop(index)
+    if len(st.session_state.data) > 1:
+        del st.session_state.data[index]
+        del st.session_state.dates[index]
 
 # Dynamische Anzeige von Eingabefeldern
-for i, row in enumerate(st.session_state['data']):
+for i in range(len(st.session_state.data)):
     cols = st.columns([2, 1, 3, 2, 2, 2, 2, 1])
     with cols[0]:
-        row['Datum'] = st.date_input("Datum", value=row['Datum'], key=f'date_{i}')
+        st.session_state.dates[i] = st.date_input("Datum", value=st.session_state.dates[i], key=f'date_{i}')
     with cols[1]:
-        row['Position'] = st.text_input("Position", value=row['Position'], key=f'position_{i}')
+        st.session_state.data[i]['Position'] = st.text_input("Position", value=st.session_state.data[i]['Position'], key=f'position_{i}')
     # ... und so weiter für die anderen Felder
+    with cols[7]:
+        if st.button("Löschen", key=f'delete_{i}'):
+            delete_row(i)
 
-# Button zum Hinzufügen weiterer Zeilen
 if st.button('Weitere Zeile hinzufügen'):
     add_row()
 
 # Anzeige der Tabelle mit den aktuellen Daten
 st.write("Aktuelle Eingaben:")
-st.table(st.session_state['data'])
+current_data = [{'Datum': date, **data} for date, data in zip(st.session_state.dates, st.session_state.data)]
+st.table(current_data)
