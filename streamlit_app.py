@@ -28,7 +28,7 @@ def insert_text_in_template(df, total_cost, template_path):
     doc_io = io.BytesIO()
     doc.save(doc_io)
     doc_io.seek(0)
-    return doc_io
+return doc_io
 
 st.title("Arbeitszeiten und Kostenberechnung")
 
