@@ -32,7 +32,7 @@ if 'data' not in st.session_state:
 
 with st.form(key='inputs_form'):
     for i in range(len(st.session_state.data) + 1):
-        cols = st.columns([1, 3, 2, 2, 2, 2])  # Anpassung der Spaltenbreiten
+        cols = st.columns([2, 5, 4, 4, 4, 4])  # Anpassung der Spaltenbreiten
         with cols[0]:
             position = st.text_input(f"Position {i+1}", key=f'position_{i}')
         with cols[1]:
