@@ -10,16 +10,22 @@ from docx import Document
 def remove_non_printable_chars(text):
     return re.sub(r'[^\x20-\x7E]', '', text)
 
-def insert_text_in_template(text, template_path):
+def insert_text_in_template(text, df, total_cost, template_path):
     doc = Document(template_path)
-    # Gehe zur gewünschten Zeile (Zeile 8) und füge Text ein
-    # Beachten Sie, dass Python bei 0 zu zählen beginnt, daher ist Zeile 8 in der Liste die 7. Position
+    # Füge den bearbeiteten Text und die Tabelle in das Dokument ein
     if len(doc.paragraphs) >= 8:
         para = doc.paragraphs[7]
         para.add_run(text)
+        para.add_run("\n\nTabelle:\n")
+        for index, row in df.iterrows():
+            para.add_run(f"{row['Position']} | {row['Name']} | {row['Arbeitszeit']} | {row['Von']} | {row['Bis']}\n")
+        para.add_run(f"\nGesamtkosten: {total_cost}")
     else:
-        # Falls weniger als 8 Zeilen vorhanden sind, wird der Text am Ende hinzugefügt
         doc.add_paragraph(text)
+        doc.add_paragraph("Tabelle:")
+        for index, row in df.iterrows():
+            doc.add_paragraph(f"{row['Position']} | {row['Name']} | {row['Arbeitszeit']} | {row['Von']} | {row['Bis']}")
+        doc.add_paragraph(f"Gesamtkosten: {total_cost}")
 
     # Speichere das Dokument im Speicher
     doc_io = io.BytesIO()
@@ -27,14 +33,11 @@ def insert_text_in_template(text, template_path):
     doc_io.seek(0)
     return doc_io
 
-
 # OCR-Konfiguration
-# Hinweis: Ändern Sie den Pfad entsprechend Ihrer Tesseract-Installation
 pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'  # Für Linux/Mac
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Für Windows
 
 # Streamlit-Seitenlayout
-st.title("Text- und Zahlen-Erkennung")
+st.title("Text- und Zahlen-Erkennung mit Kostenermittlung")
 
 # Bild-Upload
 uploaded_file = st.file_uploader("Bild hochladen", type=["jpg", "png", "jpeg"])
@@ -53,19 +56,26 @@ if uploaded_file is not None:
     st.write("Erkannter Text (bearbeitbar):")
     edited_text = st.text_area("", cleaned_text, height=300)
 
+    # Tabelle für Benutzereingaben
+    st.write("Geben Sie Daten in die Tabelle ein:")
+    with st.form(key='my_form'):
+        position = st.text_input("Position")
+        name = st.text_input("Name")
+        arbeitszeit = st.number_input("Arbeitszeit (in Stunden)", min_value=0.0, value=0.0, step=0.5)
+        von = st.time_input("Von")
+        bis = st.time_input("Bis")
+        kostenfaktor = st.number_input("Kostenfaktor (pro Stunde)", min_value=0.0, value=0.0, step=0.1)
+        submit_button = st.form_submit_button(label='Berechnen und hinzufügen')
 
- # Erstellen und Herunterladen des Word-Dokuments
-    if st.button('Word-Dokument erstellen und herunterladen'):
-        template_path = 'template.docx'  # Pfad zur Vorlage
-        doc_io = insert_text_in_template(edited_text, template_path)
-        st.download_button(label="Word-Dokument herunterladen", data=doc_io, file_name="text_document.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    if submit_button:
+        # Berechnung der Gesamtkosten
+        total_cost = arbeitszeit * kostenfaktor
 
-    # Speichern als Excel-Datei
-    if st.button('Excel-Datei erstellen und herunterladen'):
-        data = {'Text': edited_text.split('\n')}
+        # Erstellung der Tabelle
+        data = {'Position': [position], 'Name': [name], 'Arbeitszeit': [arbeitszeit], 'Von': [von], 'Bis': [bis]}
         df = pd.DataFrame(data)
 
-        towrite = io.BytesIO()
-        df.to_excel(towrite, index=False, header=True)
-        towrite.seek(0)
-        st.download_button(label='Excel-Datei herunterladen', data=towrite, file_name='text_data.xlsx', mime='application/vnd.ms-excel')
+        # Erstellen und Herunterladen des Word-Dokuments
+        template_path = 'template.docx'  # Pfad zur Vorlage
+        doc_io = insert_text_in_template(edited_text, df, total_cost, template_path)
+        st.download_button(label="Word-Dokument herunterladen", data=doc_io, file_name="text_document.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
