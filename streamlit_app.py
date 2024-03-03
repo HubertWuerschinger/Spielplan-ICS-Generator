@@ -25,6 +25,10 @@ def delete_row(index):
         del st.session_state.data[index]
         del st.session_state.dates[index]
 
+# Sicherstellen, dass 'dates' für jede Zeile in 'data' initialisiert ist
+while len(st.session_state.dates) < len(st.session_state.data):
+    st.session_state.dates.append(datetime.date.today())
+
 # Dynamische Anzeige von Eingabefeldern
 for i in range(len(st.session_state.data)):
     cols = st.columns([2, 1, 3, 2, 2, 2, 2, 1])
@@ -32,7 +36,7 @@ for i in range(len(st.session_state.data)):
         st.session_state.dates[i] = st.date_input("Datum", value=st.session_state.dates[i], key=f'date_{i}')
     with cols[1]:
         st.session_state.data[i]['Position'] = st.text_input("Position", value=st.session_state.data[i]['Position'], key=f'position_{i}')
-    # ... und so weiter für die anderen Felder
+    # ... Fortsetzung für andere Felder ...
     with cols[7]:
         if st.button("Löschen", key=f'delete_{i}'):
             delete_row(i)
