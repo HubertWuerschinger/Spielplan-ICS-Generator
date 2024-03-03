@@ -5,7 +5,6 @@ import io
 
 def insert_text_in_template(df, total_cost, template_path):
     doc = Document(template_path)
-    # Füge die Tabelle in das Dokument ein
     if len(doc.paragraphs) >= 8:
         para = doc.paragraphs[7]
         para.add_run("\n\nTabelle:\n")
@@ -18,17 +17,13 @@ def insert_text_in_template(df, total_cost, template_path):
             doc.add_paragraph(f"{row['Position']} | {row['Name']} | {row['Arbeitszeit']} | {row['Von']} | {row['Bis']}")
         doc.add_paragraph(f"Gesamtkosten: {total_cost}")
 
-    # Speichere das Dokument im Speicher
     doc_io = io.BytesIO()
     doc.save(doc_io)
     doc_io.seek(0)
     return doc_io
 
-# Streamlit-Seitenlayout
 st.title("Arbeitszeiten und Kostenberechnung")
 
-# Dynamische Tabelle für Benutzereingaben
-st.write("Geben Sie Daten in die Tabelle ein:")
 data = []
 total_cost = 0.0
 
@@ -37,7 +32,7 @@ if 'data' not in st.session_state:
 
 with st.form(key='inputs_form'):
     for i in range(len(st.session_state.data) + 1):
-        cols = st.columns([1, 2, 1, 1, 1, 1])
+        cols = st.columns([1, 3, 2, 2, 2, 2])  # Anpassung der Spaltenbreiten
         with cols[0]:
             position = st.text_input(f"Position {i+1}", key=f'position_{i}')
         with cols[1]:
