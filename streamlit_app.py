@@ -1,27 +1,18 @@
 import streamlit as st
-import pytesseract
 import pandas as pd
-from PIL import Image
-import io
-import re
 from docx import Document
+import io
 
-# Funktion zur Bereinigung von nicht-druckbaren Zeichen
-def remove_non_printable_chars(text):
-    return re.sub(r'[^\x20-\x7E]', '', text)
-
-def insert_text_in_template(text, df, total_cost, template_path):
+def insert_text_in_template(df, total_cost, template_path):
     doc = Document(template_path)
-    # Füge den bearbeiteten Text und die Tabelle in das Dokument ein
+    # Füge die Tabelle in das Dokument ein
     if len(doc.paragraphs) >= 8:
         para = doc.paragraphs[7]
-        para.add_run(text)
         para.add_run("\n\nTabelle:\n")
         for index, row in df.iterrows():
             para.add_run(f"{row['Position']} | {row['Name']} | {row['Arbeitszeit']} | {row['Von']} | {row['Bis']}\n")
         para.add_run(f"\nGesamtkosten: {total_cost}")
     else:
-        doc.add_paragraph(text)
         doc.add_paragraph("Tabelle:")
         for index, row in df.iterrows():
             doc.add_paragraph(f"{row['Position']} | {row['Name']} | {row['Arbeitszeit']} | {row['Von']} | {row['Bis']}")
@@ -33,49 +24,44 @@ def insert_text_in_template(text, df, total_cost, template_path):
     doc_io.seek(0)
     return doc_io
 
-# OCR-Konfiguration
-pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'  # Für Linux/Mac
-
 # Streamlit-Seitenlayout
-st.title("Text- und Zahlen-Erkennung mit Kostenermittlung")
+st.title("Arbeitszeiten und Kostenberechnung")
 
-# Bild-Upload
-uploaded_file = st.file_uploader("Bild hochladen", type=["jpg", "png", "jpeg"])
+# Dynamische Tabelle für Benutzereingaben
+st.write("Geben Sie Daten in die Tabelle ein:")
+data = []
+total_cost = 0.0
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Hochgeladenes Bild', use_column_width=True)
-    
-    # Bild in Text umwandeln
-    text = pytesseract.image_to_string(image)
+if 'data' not in st.session_state:
+    st.session_state.data = []
 
-    # Bereinigen Sie den Text von nicht-druckbaren Zeichen
-    cleaned_text = remove_non_printable_chars(text)
+with st.form(key='inputs_form'):
+    for i in range(len(st.session_state.data) + 1):
+        cols = st.columns([1, 2, 1, 1, 1, 1])
+        with cols[0]:
+            position = st.text_input(f"Position {i+1}", key=f'position_{i}')
+        with cols[1]:
+            name = st.text_input("Name", key=f'name_{i}')
+        with cols[2]:
+            arbeitszeit = st.number_input("Arbeitszeit (in Stunden)", min_value=0.0, value=0.0, step=0.5, key=f'arbeitszeit_{i}')
+        with cols[3]:
+            von = st.time_input("Von", key=f'von_{i}')
+        with cols[4]:
+            bis = st.time_input("Bis", key=f'bis_{i}')
+        with cols[5]:
+            kostenfaktor = st.number_input("Kostenfaktor (pro Stunde)", min_value=0.0, value=0.0, step=0.1, key=f'kostenfaktor_{i}')
 
-    # Textbearbeitungsfeld
-    st.write("Erkannter Text (bearbeitbar):")
-    edited_text = st.text_area("", cleaned_text, height=300)
+        data.append([position, name, arbeitszeit, von, bis])
+        total_cost += arbeitszeit * kostenfaktor
 
-    # Tabelle für Benutzereingaben
-    st.write("Geben Sie Daten in die Tabelle ein:")
-    with st.form(key='my_form'):
-        position = st.text_input("Position")
-        name = st.text_input("Name")
-        arbeitszeit = st.number_input("Arbeitszeit (in Stunden)", min_value=0.0, value=0.0, step=0.5)
-        von = st.time_input("Von")
-        bis = st.time_input("Bis")
-        kostenfaktor = st.number_input("Kostenfaktor (pro Stunde)", min_value=0.0, value=0.0, step=0.1)
-        submit_button = st.form_submit_button(label='Berechnen und hinzufügen')
+    add_row = st.form_submit_button(label='Weitere Zeile hinzufügen')
+    create_document = st.form_submit_button(label='Word-Dokument erstellen und herunterladen')
 
-    if submit_button:
-        # Berechnung der Gesamtkosten
-        total_cost = arbeitszeit * kostenfaktor
+if add_row:
+    st.session_state.data = data
 
-        # Erstellung der Tabelle
-        data = {'Position': [position], 'Name': [name], 'Arbeitszeit': [arbeitszeit], 'Von': [von], 'Bis': [bis]}
-        df = pd.DataFrame(data)
-
-        # Erstellen und Herunterladen des Word-Dokuments
-        template_path = 'template.docx'  # Pfad zur Vorlage
-        doc_io = insert_text_in_template(edited_text, df, total_cost, template_path)
-        st.download_button(label="Word-Dokument herunterladen", data=doc_io, file_name="text_document.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+if create_document:
+    df = pd.DataFrame(data, columns=['Position', 'Name', 'Arbeitszeit', 'Von', 'Bis'])
+    template_path = 'template.docx'  # Pfad zur Vorlage
+    doc_io = insert_text_in_template(df, total_cost, template_path)
+    st.download_button(label="Word-Dokument herunterladen", data=doc_io, file_name="text_document.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
