@@ -3,6 +3,11 @@ import pandas as pd
 from docx import Document
 import io
 
+import datetime
+
+
+
+
 # Setze das Seitenlayout auf breit
 st.set_page_config(layout="wide")
 
@@ -32,8 +37,14 @@ if 'data' not in st.session_state:
 
 # Funktion zum Hinzufügen einer neuen Zeile
 def add_row():
-    st.session_state.data.append({"Position": "", "Name": "", "Arbeitszeit": 0.0, "Von": "00:00", "Bis": "00:00", "Kostenfaktor": 0.0})
-
+    st.session_state.data.append({
+        "Position": "", 
+        "Name": "", 
+        "Arbeitszeit": 0.0, 
+        "Von": datetime.time(0, 0),  # Initialisiere mit Mitternacht
+        "Bis": datetime.time(0, 0),  # Initialisiere mit Mitternacht
+        "Kostenfaktor": 0.0
+    })
 # Funktion zum Löschen einer Zeile
 def delete_row(index):
     if index < len(st.session_state.data):
@@ -51,9 +62,9 @@ def display_table():
         with cols[2]:
             arbeitszeit = st.number_input("Arbeitszeit (in Stunden)", value=row["Arbeitszeit"], min_value=0.0, step=0.5, key=f'arbeitszeit_{i}')
         with cols[3]:
-            von = st.time_input("Von", value=row["Von"], key=f'von_{i}')
+            row["Von"] = st.time_input("Von", value=row["Von"], key=f'von_{i}')
         with cols[4]:
-            bis = st.time_input("Bis", value=row["Bis"], key=f'bis_{i}')
+            row["Bis"] = st.time_input("Bis", value=row["Bis"], key=f'bis_{i}')
         with cols[5]:
             kostenfaktor = st.number_input("Kostenfaktor (pro Stunde)", value=row["Kostenfaktor"], min_value=0.0, step=0.1, key=f'kostenfaktor_{i}')
         new_data.append({"Position": position, "Name": name, "Arbeitszeit": arbeitszeit, "Von": von, "Bis": bis, "Kostenfaktor": kostenfaktor})
