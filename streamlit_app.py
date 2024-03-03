@@ -33,11 +33,12 @@ def add_row():
 
 # Funktion zum Löschen einer Zeile
 def delete_row(index):
-    st.session_state.data.pop(index)
+    if index < len(st.session_state.data):
+        del st.session_state.data[index]
 
-# Anzeige der Tabelle
+# Anzeige und Bearbeitung der Tabelle
 for i in range(len(st.session_state.data)):
-    cols = st.columns([3, 6, 6, 6, 6, 6, 3])
+    cols = st.columns([1, 3, 2, 2, 2, 2, 1])
     with cols[0]:
         st.session_state.data[i]["Position"] = st.text_input(f"Position {i+1}", key=f'position_{i}')
     with cols[1]:
