@@ -38,7 +38,7 @@ def delete_row(index):
 
 # Anzeige und Bearbeitung der Tabelle
 for i in range(len(st.session_state.data)):
-    cols = st.columns([5, 6, 6, 6, 6, 6, 3])
+    cols = st.columns([6, 8, 8, 8, 8, 8, 8])
     with cols[0]:
         st.session_state.data[i]["Position"] = st.text_input(f"Position {i+1}", key=f'position_{i}')
     with cols[1]:
