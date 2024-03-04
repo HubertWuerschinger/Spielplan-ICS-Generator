@@ -48,6 +48,13 @@ for i in range(len(st.session_state.data)):
 if st.button('Weitere Zeile hinzufügen'):
     add_row()
 
+# Anzeige der Tabelle mit den aktuellen Daten
 st.write("Aktuelle Eingaben:")
-current_data = [{'Datum': date, **data} for date, data in zip(st.session_state.dates, st.session_state.data)]
+current_data = []
+for date, data in zip(st.session_state.dates, st.session_state.data):
+    formatted_data = data.copy()
+    formatted_data['Von'] = data['Von'].strftime('%H:%M')  # Formatieren als 'Stunden:Minuten'
+    formatted_data['Bis'] = data['Bis'].strftime('%H:%M')  # Formatieren als 'Stunden:Minuten'
+    current_data.append({'Datum': date, **formatted_data})
+
 st.table(current_data)
