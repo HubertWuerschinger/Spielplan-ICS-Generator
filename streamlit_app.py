@@ -38,21 +38,20 @@ if uploaded_file is not None:
     # Extrahiere Text aus der PDF
     extracted_text = extract_text_from_pdf(uploaded_file)
 
-    # Hier müsstest du eine Logik hinzufügen, um Termine aus dem Text zu extrahieren
-    # und sie in ein pandas DataFrame zu konvertieren
-
-# Beispiel eines DataFrames
-df = pd.DataFrame(
-    [
+    # Implementiere hier die Logik zur Extraktion der Termine aus dem Text
+    # und konvertiere sie in ein pandas DataFrame
+    # Beispiel:
+    dates_data = [
         {"Datum": "2024-01-01", "Ereignis": "Neujahr"},
         {"Datum": "2024-03-20", "Ereignis": "Frühlingsanfang"}
     ]
-)
+    df = pd.DataFrame(dates_data)
 
-edited_df = st.data_editor(df)
+    # Zeige eine editierbare Tabelle an
+    edited_df = st.data_editor(df)
 
-if not edited_df.empty:
-    favorite_event = edited_df.loc[edited_df["Datum"].idxmax()]["Ereignis"]
-    st.markdown(f"Dein ausgewähltes Ereignis ist **{favorite_event}** 🎈")
+    if not edited_df.empty:
+        favorite_event = edited_df.loc[edited_df["Datum"].idxmax()]["Ereignis"]
+        st.markdown(f"Dein ausgewähltes Ereignis ist **{favorite_event}** 🎈")
 
 # Streamlit App Ende
