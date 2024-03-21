@@ -1,60 +1,58 @@
 import streamlit as st
 import pandas as pd
-from docx import Document
+import pytesseract
+import cv2
+import numpy as np
+from PIL import Image
 import io
-import datetime
 
-# Setze das Seitenlayout auf breit
-st.set_page_config(layout="wide")
+# Konfiguriere pytesseract
+pytesseract.pytesseract.tesseract_cmd = '/path/to/tesseract'
 
-st.title("Arbeitszeiten und Kostenberechnung")
+def extract_text_from_pdf(file):
+    # Verwende Pillow, um das PDF in Bilder umzuwandeln
+    images = convert_pdf_to_images(file)
 
-# Initialisiere Session State für die Datenspeicherung
-if 'data' not in st.session_state:
-    st.session_state.data = [{'Position': '', 'Name': '', 'Arbeitszeit': 0.0, 'Von': datetime.time(0, 0), 'Bis': datetime.time(0, 0), 'Kostenfaktor': 0.0}]
+    # Extrahiere Text aus jedem Bild
+    text = ''
+    for img in images:
+        text += pytesseract.image_to_string(img)
+    return text
 
-if 'dates' not in st.session_state:
-    st.session_state.dates = [datetime.date.today() for _ in st.session_state.data]
+def convert_pdf_to_images(file):
+    # Verwende OpenCV, um PDF-Seiten in Bilder umzuwandeln
+    images = []
+    file_stream = io.BytesIO(file.getvalue())
+    pil_images = Image.open(file_stream)
+    for i in range(pil_images.n_frames):
+        pil_images.seek(i)
+        image = np.array(pil_images)
+        images.append(image)
+    return images
 
-def add_row():
-    st.session_state.data.append({'Position': '', 'Name': '', 'Arbeitszeit': 0.0, 'Von': datetime.time(0, 0), 'Bis': datetime.time(0, 0), 'Kostenfaktor': 0.0})
-    st.session_state.dates.append(datetime.date.today())
+# Streamlit App Start
+st.title("Termine aus PDF extrahieren")
 
-def delete_row(index):
-    if len(st.session_state.data) > 1:
-        del st.session_state.data[index]
-        del st.session_state.dates[index]
+uploaded_file = st.file_uploader("Lade eine PDF-Datei hoch", type=["pdf"])
+if uploaded_file is not None:
+    # Extrahiere Text aus der PDF
+    extracted_text = extract_text_from_pdf(uploaded_file)
 
-for i in range(len(st.session_state.data)):
-    cols = st.columns([2, 1, 2, 2, 2, 2, 2, 1])
-    with cols[0]:
-        st.session_state.dates[i] = st.date_input("Datum", value=st.session_state.dates[i], key=f'date_{i}')
-    with cols[1]:
-        st.session_state.data[i]['Position'] = st.text_input("Position", value=st.session_state.data[i]['Position'], key=f'position_{i}')
-    with cols[2]:
-        st.session_state.data[i]['Name'] = st.text_input("Name", value=st.session_state.data[i]['Name'], key=f'name_{i}')
-    with cols[3]:
-        st.session_state.data[i]['Arbeitszeit'] = st.number_input("Arbeitszeit (in Stunden)", value=st.session_state.data[i]['Arbeitszeit'], min_value=0.0, step=0.5, key=f'arbeitszeit_{i}')
-    with cols[4]:
-        st.session_state.data[i]['Von'] = st.time_input("Von", value=st.session_state.data[i]['Von'], key=f'von_{i}')
-    with cols[5]:
-        st.session_state.data[i]['Bis'] = st.time_input("Bis", value=st.session_state.data[i]['Bis'], key=f'bis_{i}')
-    with cols[6]:
-        st.session_state.data[i]['Kostenfaktor'] = st.number_input("Kostenfaktor (pro Stunde)", value=st.session_state.data[i]['Kostenfaktor'], min_value=0.0, step=0.1, key=f'kostenfaktor_{i}')
-    with cols[7]:
-        if st.button("Löschen", key=f'delete_{i}'):
-            delete_row(i)
+    # Hier müsstest du eine Logik hinzufügen, um Termine aus dem Text zu extrahieren
+    # und sie in ein pandas DataFrame zu konvertieren
 
-if st.button('Weitere Zeile hinzufügen'):
-    add_row()
+# Beispiel eines DataFrames
+df = pd.DataFrame(
+    [
+        {"Datum": "2024-01-01", "Ereignis": "Neujahr"},
+        {"Datum": "2024-03-20", "Ereignis": "Frühlingsanfang"}
+    ]
+)
 
-# Anzeige der Tabelle mit den aktuellen Daten
-st.write("Aktuelle Eingaben:")
-current_data = []
-for date, data in zip(st.session_state.dates, st.session_state.data):
-    formatted_data = data.copy()
-    formatted_data['Von'] = data['Von'].strftime('%H:%M')  # Formatieren als 'Stunden:Minuten'
-    formatted_data['Bis'] = data['Bis'].strftime('%H:%M')  # Formatieren als 'Stunden:Minuten'
-    current_data.append({'Datum': date, **formatted_data})
+edited_df = st.data_editor(df)
 
-st.table(current_data)
+if not edited_df.empty:
+    favorite_event = edited_df.loc[edited_df["Datum"].idxmax()]["Ereignis"]
+    st.markdown(f"Dein ausgewähltes Ereignis ist **{favorite_event}** 🎈")
+
+# Streamlit App Ende
