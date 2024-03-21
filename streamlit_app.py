@@ -1,34 +1,14 @@
 import streamlit as st
 import pandas as pd
-import pytesseract
-import cv2
-import numpy as np
-from PIL import Image
+import pdfplumber
 import io
 
-# Konfiguriere pytesseract
-pytesseract.pytesseract.tesseract_cmd = '/path/to/tesseract'
-
 def extract_text_from_pdf(file):
-    # Verwende Pillow, um das PDF in Bilder umzuwandeln
-    images = convert_pdf_to_images(file)
-
-    # Extrahiere Text aus jedem Bild
     text = ''
-    for img in images:
-        text += pytesseract.image_to_string(img)
+    with pdfplumber.open(file) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text()
     return text
-
-def convert_pdf_to_images(file):
-    # Verwende OpenCV, um PDF-Seiten in Bilder umzuwandeln
-    images = []
-    file_stream = io.BytesIO(file.getvalue())
-    pil_images = Image.open(file_stream)
-    for i in range(pil_images.n_frames):
-        pil_images.seek(i)
-        image = np.array(pil_images)
-        images.append(image)
-    return images
 
 # Streamlit App Start
 st.title("Termine aus PDF extrahieren")
