@@ -35,7 +35,7 @@ if uploaded_file is not None:
         # Wandle die extrahierten Tabellen in DataFrames um
         dataframes = tables_to_dataframes(tables)
 
-        # Wähle eine Tabelle zum Anzeigen und Bearbeiten aus
+        # Auswahl der Tabelle
         selected_table_index = st.selectbox("Wähle eine Tabelle aus", range(len(dataframes)))
         selected_table = dataframes[selected_table_index]
 
