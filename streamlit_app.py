@@ -12,7 +12,7 @@ def extract_text_from_pdf(uploaded_file):
         for page in pages:
             text += page.extract_text()
     return text
-
+events = []
 # Funktion zum Verarbeiten des Spielplans und Erstellen von Event-Daten
 def process_schedule(text):
     events = []
