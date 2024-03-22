@@ -52,10 +52,10 @@ def process_schedule(text):
 
 
 
-# Funktion zum Erstellen eines iCal-Files
-def create_ical_file(events):
+# Funktion zum Erstellen eines ICS- oder iCal-Files
+def create_calendar_file(events, file_format="ics"):
     cal = Calendar()
-    cal.add('prodid', '<Your Product Identifier Here>')
+    cal.add('prodid', '-//MeineFirma//MeinKalenderProdukt//DE')
     cal.add('version', '2.0')
 
     for event in events:
@@ -81,13 +81,20 @@ if uploaded_file is not None and st.button('Dateien erstellen'):
     # Verarbeitung des Spielplans
     events = process_schedule(schedule_text)
 
-    # Erstellung der iCal-Datei
-    ical_content = create_ical_file(events)
+    # Erstellung der ICS- und iCal-Dateien
+    calendar_content = create_calendar_file(events)
 
-    # Erstellung des iCal-Download-Links
+    # Erstellung der Download-Links
+    st.download_button(
+        label="Download ICS-Datei",
+        data=calendar_content,
+        file_name="sv_doerfleins_schedule.ics",
+        mime="text/calendar"
+    )
+    
     st.download_button(
         label="Download iCal-Datei",
-        data=ical_content,
+        data=calendar_content,
         file_name="sv_doerfleins_schedule.ical",
         mime="text/calendar"
     )
