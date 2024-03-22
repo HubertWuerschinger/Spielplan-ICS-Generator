@@ -14,32 +14,38 @@ def extract_data_from_pdf(file, bbox):
         text_data = cropped_page.extract_text(x_tolerance=3, y_tolerance=3)
     return text_data
 
+import re
+from datetime import datetime
+
 def process_extracted_text(text):
     lines = text.split('\n')
     data = []
     last_date = None
 
-    # Regulärer Ausdruck für das Datum und die Uhrzeit
+    # Aktualisierter regulärer Ausdruck, um das komplette Datum zu erfassen
     date_pattern = re.compile(r'\w+\.\d{2}\.\d{2}\.\d{4}\d{2}:\d{2}')
 
     for line in lines:
-        # Prüfe jede Zeile, um das Datum und die Uhrzeit zu erkennen
         date_match = date_pattern.search(line)
         if date_match:
+            # Entferne den Wochentag und konvertiere in ein datetime-Objekt
             date_str = date_match.group()
-            # Entferne den Wochentag (z.B. "So.") und konvertiere in ein datetime-Objekt
-            date_str = date_str.split('.')[1]  # "05.05.202409:00"
-            last_date = datetime.strptime(date_str, '%d.%m.%Y%H:%M')
-            continue  # Überspringe den Rest der Schleife und gehe zur nächsten Zeile
+            date_str = date_str.split('.', 1)[1]  # Entferne Wochentag
+            try:
+                last_date = datetime.strptime(date_str, '%d.%m.%Y%H:%M')
+            except ValueError as e:
+                st.error(f"Fehler bei der Datumsverarbeitung: {e}")
+                continue
 
-        # Prüfe auf Mannschaftsnamen
-        if " - " in line:
+        # Mannschaftsnamen-Logik bleibt gleich
+        if " - " in line and last_date:
             teams = line.split(" - ")
-            if len(teams) == 2 and last_date:
+            if len(teams) == 2:
                 heim, gast = teams[0], teams[1]
                 data.append({"Termin": last_date, "Heimmannschaft": heim.strip(), "Gastmannschaft": gast.strip()})
 
     return pd.DataFrame(data)
+
 
 
 def main():
