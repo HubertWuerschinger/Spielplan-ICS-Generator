@@ -1,7 +1,6 @@
 import streamlit as st
 import pdfplumber
 import pandas as pd
-import io
 from PIL import Image
 
 def extract_data_from_pdf(file, bbox):
@@ -29,7 +28,7 @@ def main():
             with pdfplumber.open(uploaded_file) as pdf:
                 page = pdf.pages[0]
                 cropped_page = page.crop(bbox)  # Schneide den Bereich zu
-                cropped_image = Image.open(io.BytesIO(cropped_page.to_image().original))
+                cropped_image = cropped_page.to_image().original
                 st.image(cropped_image, caption="Ausgewählter Bereich", use_column_width=True)
 
         if st.button("Text extrahieren"):
