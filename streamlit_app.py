@@ -14,31 +14,41 @@ def extract_text_from_pdf(uploaded_file):
     return text
 
 # Funktion zum Verarbeiten des Spielplans und Erstellen von Event-Daten
+import re
+
 def process_schedule(text):
     events = []
     lines = text.split('\n')
+
+    # Regex-Muster zur Identifizierung von Spielzeilen
+    match_pattern = r'(So\.|Do\.)\d{2}\.\d{2}\.\d{4}\d{2}:\d{2} .+ .+'
+
     for line in lines:
-        if "SV Dörfleins" in line:
-            # Parse die Daten für jedes Spiel, abhängig von der Struktur Ihrer PDF-Daten
-            # Beispiel: "So. 05.05.2024 09:00 SV Dörfleins - TSV Elsa"
-            parts = line.split()
-            if len(parts) >= 3:
-                date_str = parts[1]
-                time_str = parts[2]
-                opponent = parts[-1]
+        # Überprüfe, ob die Zeile einem Spiel entspricht
+        if re.match(match_pattern, line):
+            try:
+                # Extrahiere Datum, Uhrzeit und Teams
+                parts = re.split(r'(\d{2}\.\d{2}\.\d{4})(\d{2}:\d{2})', line)
+                date_str, time_str, teams = parts[1], parts[2], parts[3].strip()
 
                 dt_start = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
                 dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
-                dt_end = dt_start + timedelta(hours=2)  # Annahme: 2 Stunden pro Spiel
+                dt_end = dt_start + timedelta(hours=2)
 
+                home_team, away_team = teams.split('-')
+                home_game = "SV Dörfleins" in home_team
+
+                opponent = away_team if home_game else home_team
                 events.append({
                     "dtstart": dt_start,
                     "dtend": dt_end,
-                    "opponent": opponent,
-                    "home": "SV Dörfleins" in line
+                    "opponent": opponent.strip(),
+                    "home": home_game
                 })
+            except Exception as e:
+                st.error(f"Fehler beim Parsen der Zeile: {line} - {e}")
+                continue
     return events
-
 # Funktion zum Erstellen eines ICS-Files
 def create_ics(events):
     cal = Calendar()
