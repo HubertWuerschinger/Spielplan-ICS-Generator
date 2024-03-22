@@ -3,7 +3,7 @@ import pdfplumber
 from datetime import datetime, timedelta
 import pytz
 from icalendar import Calendar, Event
-
+import re
 # Funktion zum Extrahieren von Text aus einem PDF
 def extract_text_from_pdf(uploaded_file):
     with pdfplumber.open(uploaded_file) as pdf:
@@ -14,10 +14,6 @@ def extract_text_from_pdf(uploaded_file):
     return text
 
 # Funktion zum Verarbeiten des Spielplans und Erstellen von Event-Daten
-import re
-
-import re
-
 def process_schedule(text):
     events = []
     lines = text.split('\n')
@@ -89,3 +85,4 @@ if uploaded_file is not None and st.button('ICS-File erstellen'):
         file_name="sv_doerfleins_schedule.ics",
         mime="text/calendar"
     )
+print(events)
