@@ -1,19 +1,15 @@
 import streamlit as st
-from PIL import Image
-import pytesseract
-import pdfplumber
 import pandas as pd
+import pdfplumber
 import io
 
-# Funktion, um die erste Seite des PDFs als Bild umzuwandeln
-def convert_pdf_page_to_image(file, page_number=0):
+def extract_data_from_pdf(file, bbox):
+    text_data = []
     with pdfplumber.open(file) as pdf:
-        page = pdf.pages[page_number]
-        image = page.to_image().original
-        return image
-
-def extract_text_from_image(image):
-    return pytesseract.image_to_string(image)
+        page = pdf.pages[0]
+        # Die bbox-Parameter sind (x0, y0, x1, y1).
+        text_data = page.extract_text(x_tolerance=3, y_tolerance=3, layout=False, bbox=bbox)
+    return text_data
 
 def main():
     st.title("Bereich aus PDF extrahieren durch manuelle Koordinateneingabe")
@@ -21,30 +17,27 @@ def main():
     # PDF-Datei hochladen
     uploaded_file = st.file_uploader("Lade eine PDF-Datei hoch", type=["pdf"])
     if uploaded_file is not None:
-        image = convert_pdf_page_to_image(uploaded_file)
-        st.image(image, caption='PDF Vorschau', use_column_width=True)
+        # Eingabe der Koordinaten für den Bereich
+        st.sidebar.header("Koordinaten für den PDF-Bereich")
+        x0 = st.sidebar.number_input("X0 Koordinate", min_value=0, value=0)
+        y0 = st.sidebar.number_input("Y0 Koordinate", min_value=0, value=0)
+        x1 = st.sidebar.number_input("X1 Koordinate", min_value=0, value=100)
+        y1 = st.sidebar.number_input("Y1 Koordinate", min_value=0, value=100)
 
-        # Eingabe der Koordinaten
-        st.sidebar.header("Koordinaten für den Bildbereich")
-        x1 = st.sidebar.number_input("X1 Koordinate", min_value=0, max_value=image.width, value=0)
-        y1 = st.sidebar.number_input("Y1 Koordinate", min_value=0, max_value=image.height, value=0)
-        x2 = st.sidebar.number_input("X2 Koordinate", min_value=0, max_value=image.width, value=image.width)
-        y2 = st.sidebar.number_input("Y2 Koordinate", min_value=0, max_value=image.height, value=image.height)
+        if st.button("Text extrahieren"):
+            # Extrahiere Daten aus dem ausgewählten PDF-Bereich
+            extracted_text = extract_data_from_pdf(uploaded_file, (x0, y0, x1, y1))
 
-        if st.button("Bereich anzeigen und Text extrahieren"):
-            cropped_image = image.crop((x1, y1, x2, y2))
-            st.image(cropped_image, caption="Ausgewählter Bereich")
+            if extracted_text:
+                st.text_area("Extrahierter Text", extracted_text, height=150)
 
-            # Text aus dem Bildbereich extrahieren
-            extracted_text = extract_text_from_image(cropped_image)
-            st.text_area("Extrahierter Text", extracted_text, height=150)
+                # Konvertiere den extrahierten Text in ein DataFrame
+                # Hier müsste deine spezifische Logik stehen
+                data = [{"Extrahierter Text": line} for line in extracted_text.split('\n') if line.strip()]
+                df = pd.DataFrame(data)
 
-            # Konvertiere den extrahierten Text in ein DataFrame (Hier müsste deine spezifische Logik stehen)
-            data = [{"Extrahierter Text": line} for line in extracted_text.split('\n') if line.strip()]
-            df = pd.DataFrame(data)
-
-            # Zeige eine editierbare Tabelle an
-            edited_df = st.data_editor(df)
-            st.dataframe(edited_df)
+                # Zeige eine editierbare Tabelle an
+                edited_df = st.data_editor(df)
+                st.dataframe(edited_df)
 
 main()
