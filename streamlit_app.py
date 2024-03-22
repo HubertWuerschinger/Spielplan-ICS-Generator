@@ -13,21 +13,30 @@ def extract_text_from_pdf(uploaded_file):
             text += page.extract_text()
     return text
 
-# Funktion zum Verarbeiten des Spielplans
+# Funktion zum Verarbeiten des Spielplans und Erstellen von Event-Daten
 def process_schedule(text):
-    # Extrahiere die relevanten Daten aus dem Text
-    # Dies hängt von der Struktur des PDFs ab und muss angepasst werden
-    # Beispiel: Extraktion von Zeilen, die mit "SV Dörfleins" beginnen
-    lines = text.split('\n')
-    sv_doerfleins_matches = [line for line in lines if "SV Dörfleins" in line]
-
     events = []
-    for line in sv_doerfleins_matches:
-        # Parse die Daten für jedes Spiel
-        # Dies muss entsprechend der Struktur der Daten im PDF angepasst werden
-        # Beispiel: "Datum Uhrzeit SV Dörfleins - Gegner"
-        pass  # Logik zur Datumsverarbeitung
+    lines = text.split('\n')
+    for line in lines:
+        if "SV Dörfleins" in line:
+            # Parse die Daten für jedes Spiel, abhängig von der Struktur Ihrer PDF-Daten
+            # Beispiel: "So. 05.05.2024 09:00 SV Dörfleins - TSV Elsa"
+            parts = line.split()
+            if len(parts) >= 3:
+                date_str = parts[1]
+                time_str = parts[2]
+                opponent = parts[-1]
 
+                dt_start = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
+                dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
+                dt_end = dt_start + timedelta(hours=2)  # Annahme: 2 Stunden pro Spiel
+
+                events.append({
+                    "dtstart": dt_start,
+                    "dtend": dt_end,
+                    "opponent": opponent,
+                    "home": "SV Dörfleins" in line
+                })
     return events
 
 # Funktion zum Erstellen eines ICS-Files
@@ -35,8 +44,11 @@ def create_ics(events):
     cal = Calendar()
     for event in events:
         cal_event = Event()
-        # Fügen Sie die Event-Details hinzu
-        pass  # Logik zum Hinzufügen von Event-Details
+        cal_event.add('summary', f"SV Dörfleins vs {event['opponent']}")
+        cal_event.add('dtstart', event['dtstart'])
+        cal_event.add('dtend', event['dtend'])
+        cal_event.add('location', 'SV Dörfleins' if event['home'] else 'Away')
+        cal.add_component(cal_event)
     return cal.to_ical()
 
 # Streamlit App UI
