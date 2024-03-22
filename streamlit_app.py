@@ -1,7 +1,9 @@
 import streamlit as st
 from PIL import Image
-import io
+import pytesseract
 import pdfplumber
+import pandas as pd
+import io
 
 # Funktion, um die erste Seite des PDFs als Bild umzuwandeln
 def convert_pdf_page_to_image(file, page_number=0):
@@ -9,6 +11,9 @@ def convert_pdf_page_to_image(file, page_number=0):
         page = pdf.pages[page_number]
         image = page.to_image().original
         return image
+
+def extract_text_from_image(image):
+    return pytesseract.image_to_string(image)
 
 def main():
     st.title("Bereich aus PDF extrahieren durch manuelle Koordinateneingabe")
@@ -26,12 +31,20 @@ def main():
         x2 = st.sidebar.number_input("X2 Koordinate", min_value=0, max_value=image.width, value=image.width)
         y2 = st.sidebar.number_input("Y2 Koordinate", min_value=0, max_value=image.height, value=image.height)
 
-        # Zeige den ausgewählten Bereich, wenn die Koordinaten gegeben sind
-        if st.button("Bereich anzeigen"):
+        if st.button("Bereich anzeigen und Text extrahieren"):
             cropped_image = image.crop((x1, y1, x2, y2))
             st.image(cropped_image, caption="Ausgewählter Bereich")
 
-            # Hier können weitere Verarbeitungsschritte folgen, 
-            # z.B. Extraktion von Daten aus dem Bildbereich.
+            # Text aus dem Bildbereich extrahieren
+            extracted_text = extract_text_from_image(cropped_image)
+            st.text_area("Extrahierter Text", extracted_text, height=150)
+
+            # Konvertiere den extrahierten Text in ein DataFrame (Hier müsste deine spezifische Logik stehen)
+            data = [{"Extrahierter Text": line} for line in extracted_text.split('\n') if line.strip()]
+            df = pd.DataFrame(data)
+
+            # Zeige eine editierbare Tabelle an
+            edited_df = st.data_editor(df)
+            st.dataframe(edited_df)
 
 main()
