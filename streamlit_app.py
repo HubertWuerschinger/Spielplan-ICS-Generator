@@ -68,10 +68,10 @@ def create_calendar_file(events, file_format="ics"):
         cal_event.add('dtend', event['dtend'])
         cal_event.add('location', 'SV Dörfleins' if event['home'] else 'Away')
         cal.add_component(cal_event)
-        print("Hinzugefügtes Event:", event)  # Zum Debuggen
+        print("Hinzugefügtes Event:", events)  # Zum Debuggen
 
     return cal.to_ical()
-print("Hinzugefügtes Event:", event)
+
 
 # Streamlit App UI
 st.title("SV Dörfleins Spielplan-ICS/iCal-Generator")
