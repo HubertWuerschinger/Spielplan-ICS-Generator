@@ -13,9 +13,6 @@ def extract_text_from_pdf(uploaded_file):
 
 # Funktion zur Verarbeitung des Spielplans und Erstellung von Events
 
-
-import re
-
 def process_schedule(text):
     events = []
     lines = text.split('\n')
