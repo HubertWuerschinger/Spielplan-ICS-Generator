@@ -14,6 +14,14 @@ def extract_tables_from_pdf(file):
                 all_tables.append(table)
     return all_tables
 
+# Funktion zum Umwandeln der extrahierten Tabellen in DataFrames
+def tables_to_dataframes(tables):
+    dataframes = []
+    for table in tables:
+        df = pd.DataFrame(table[1:], columns=table[0])
+        dataframes.append(df)
+    return dataframes
+
 # Streamlit App Start
 st.title("Tabellen aus PDF extrahieren und bearbeiten")
 
@@ -24,11 +32,15 @@ if uploaded_file is not None:
     tables = extract_tables_from_pdf(uploaded_file)
 
     if tables:
-        # Wandle die erste Tabelle in ein DataFrame um
-        df = pd.DataFrame(tables[0][1:], columns=tables[0][0])
+        # Wandle die extrahierten Tabellen in DataFrames um
+        dataframes = tables_to_dataframes(tables)
+
+        # Wähle eine Tabelle zum Anzeigen und Bearbeiten aus
+        selected_table_index = st.selectbox("Wähle eine Tabelle aus", range(len(dataframes)))
+        selected_table = dataframes[selected_table_index]
 
         # Zeige eine editierbare Tabelle an
-        edited_df = st.data_editor(df)
+        edited_df = st.data_editor(selected_table)
 
         # Optionale Logik zur weiteren Verarbeitung der bearbeiteten Tabelle
         # ...
