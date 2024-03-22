@@ -16,35 +16,27 @@ def extract_text_from_pdf(uploaded_file):
 def process_schedule(text):
     events = []
     lines = text.split('\n')
-
-    # Regex-Muster zur Identifizierung von Spielzeilen
-    match_pattern = r'(So\.|Do\.)\d{2}\.\d{2}\.\d{4}\s\d{2}:\d{2} .+ - .+'
-
     for line in lines:
-        if re.match(match_pattern, line):
+        parts = line.split()
+        # Überprüfen, ob die Zeile ausreichend Teile für Datum, Uhrzeit und Mannschaften enthält
+        if len(parts) >= 3 and "SV Dörfleins" in line:
             try:
-                # Extrahiere Datum, Uhrzeit und Teams
-                date_part, time_team_part = re.split(r'\s(?=\d{2}:\d{2})', line, maxsplit=1)
-                date_str = date_part[-10:]
-                time_str, teams = time_team_part.split(' ', 1)
-                
+                # Versuch, das Datum und die Uhrzeit zu parsen
+                date_str, time_str = parts[1], parts[2]
                 dt_start = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
                 dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
                 dt_end = dt_start + timedelta(hours=2)
 
-                home_team, away_team = teams.split(' - ')
-                home_game = "SV Dörfleins" in home_team
-
-                opponent = away_team if home_game else home_team
+                opponent = parts[-1]
                 events.append({
                     "dtstart": dt_start,
                     "dtend": dt_end,
-                    "opponent": opponent.strip(),
-                    "home": home_game
+                    "opponent": opponent,
+                    "home": "SV Dörfleins" in line
                 })
-            except Exception as e:
-                st.error(f"Fehler beim Parsen der Zeile: {line} - {e}")
-                continue
+            except ValueError:
+                st.error(f"Fehler beim Parsen der Zeile: {line}")
+                continue  # Fortfahren mit der nächsten Zeile
     return events
 
 
