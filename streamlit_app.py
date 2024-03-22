@@ -39,6 +39,7 @@ def main():
     st.title("Bereich aus PDF extrahieren und darstellen")
 
     uploaded_file = st.file_uploader("Lade eine PDF-Datei hoch", type=["pdf"])
+    extracted_text = ''
     if uploaded_file is not None:
         x0 = st.sidebar.number_input("X0 Koordinate", min_value=0, value=0)
         y0 = st.sidebar.number_input("Y0 Koordinate", min_value=0, value=0)
@@ -46,17 +47,20 @@ def main():
         y1 = st.sidebar.number_input("Y1 Koordinate", min_value=0, value=100)
 
         bbox = (x0, y0, x1, y1)
-        with pdfplumber.open(uploaded_file) as pdf:
-            page = pdf.pages[0]
-            cropped_page = page.crop(bbox)
-            image_stream = io.BytesIO()
-            cropped_page.to_image().save(image_stream, format="PNG")
-            cropped_image = Image.open(image_stream)
-            st.image(cropped_image, caption="Ausgewählter Bereich", use_column_width=True)
 
-        extracted_text = st.text_area("Extrahierter Text", height=150)
-        if extracted_text:
-            df = process_extracted_text(extracted_text)
+        if st.button("Bereich anzeigen"):
+            extracted_text = extract_data_from_pdf(uploaded_file, bbox)
+            with pdfplumber.open(uploaded_file) as pdf:
+                page = pdf.pages[0]
+                cropped_page = page.crop(bbox)
+                image_stream = io.BytesIO()
+                cropped_page.to_image().save(image_stream, format="PNG")
+                cropped_image = Image.open(image_stream)
+                st.image(cropped_image, caption="Ausgewählter Bereich", use_column_width=True)
+
+        text_area = st.text_area("Extrahierter Text", extracted_text, height=150)
+        if text_area:
+            df = process_extracted_text(text_area)
             st.data_editor(df)
 
 main()
