@@ -70,7 +70,7 @@ def create_calendar_file(events, file_format="ics"):
         print("Hinzugefügtes Event:", event)  # Zum Debuggen
 
     return cal.to_ical()
-
+print("Hinzugefügtes Event:", event)
 
 # Streamlit App UI
 st.title("SV Dörfleins Spielplan-ICS/iCal-Generator")
