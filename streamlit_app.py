@@ -3,6 +3,8 @@ import pdfplumber
 import pandas as pd
 import re
 from datetime import datetime
+from PIL import Image
+import io
 
 def extract_data_from_pdf(file, bbox):
     text_data = ""
@@ -49,7 +51,11 @@ def main():
             with pdfplumber.open(uploaded_file) as pdf:
                 page = pdf.pages[0]
                 cropped_page = page.crop(bbox)
-                st.image(cropped_page.to_image(), caption="Ausgewählter Bereich", use_column_width=True)
+                # Konvertiere PageImage in PIL.Image
+                image_stream = io.BytesIO()
+                cropped_page.to_image().save(image_stream, format="PNG")
+                cropped_image = Image.open(image_stream)
+                st.image(cropped_image, caption="Ausgewählter Bereich", use_column_width=True)
 
         if st.button("Text extrahieren"):
             extracted_text = extract_data_from_pdf(uploaded_file, bbox)
