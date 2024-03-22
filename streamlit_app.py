@@ -59,8 +59,12 @@ def main():
                 st.image(cropped_image, caption="Ausgewählter Bereich", use_column_width=True)
 
         text_area = st.text_area("Extrahierter Text", extracted_text, height=150)
-        if text_area:
-            df = process_extracted_text(text_area)
-            st.data_editor(df)
+
+        if st.button("Tabelle aktualisieren"):
+            if text_area:
+                df = process_extracted_text(text_area)
+                st.data_editor(df)
+            else:
+                st.error("Bitte gib zuerst Text in das Textfeld ein oder zeige einen Bereich an.")
 
 main()
