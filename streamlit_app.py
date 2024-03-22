@@ -1,50 +1,56 @@
 import streamlit as st
+import pdfplumber
 from datetime import datetime, timedelta
 import pytz
 from icalendar import Calendar, Event
 
-# Funktion zum Erstellen eines ICS-Files aus den Spielplandaten
+# Funktion zum Extrahieren von Text aus einem PDF
+def extract_text_from_pdf(uploaded_file):
+    with pdfplumber.open(uploaded_file) as pdf:
+        pages = pdf.pages
+        text = ''
+        for page in pages:
+            text += page.extract_text()
+    return text
+
+# Funktion zum Verarbeiten des Spielplans
+def process_schedule(text):
+    # Extrahiere die relevanten Daten aus dem Text
+    # Dies hängt von der Struktur des PDFs ab und muss angepasst werden
+    # Beispiel: Extraktion von Zeilen, die mit "SV Dörfleins" beginnen
+    lines = text.split('\n')
+    sv_doerfleins_matches = [line for line in lines if "SV Dörfleins" in line]
+
+    events = []
+    for line in sv_doerfleins_matches:
+        # Parse die Daten für jedes Spiel
+        # Dies muss entsprechend der Struktur der Daten im PDF angepasst werden
+        # Beispiel: "Datum Uhrzeit SV Dörfleins - Gegner"
+        pass  # Logik zur Datumsverarbeitung
+
+    return events
+
+# Funktion zum Erstellen eines ICS-Files
 def create_ics(events):
     cal = Calendar()
     for event in events:
         cal_event = Event()
-        cal_event.add('summary', f"SV Dörfleins vs {event['opponent']}")
-        cal_event.add('dtstart', event['dtstart'])
-        cal_event.add('dtend', event['dtend'])
-        cal_event.add('location', 'SV Dörfleins' if event['home'] else 'Away')
-        cal.add_component(cal_event)
+        # Fügen Sie die Event-Details hinzu
+        pass  # Logik zum Hinzufügen von Event-Details
     return cal.to_ical()
-
-# Funktion zur Verarbeitung des eingegebenen Spielplans
-def process_schedule(schedule):
-    events = []
-    for line in schedule.split('\n'):
-        try:
-            date_str, time, opponents = line.split(',')
-            date = datetime.strptime(date_str, "%d.%m.%Y")
-            time = datetime.strptime(time, "%H:%M").time()
-            dtstart = pytz.timezone("Europe/Berlin").localize(datetime.combine(date, time))
-            dtend = dtstart + timedelta(hours=2)  # Annahme: 2 Stunden pro Spiel
-            home, opponent = opponents.split('-')
-            events.append({
-                "dtstart": dtstart,
-                "dtend": dtend,
-                "opponent": opponent.strip(),
-                "home": home.strip() == "SV Dörfleins"
-            })
-        except ValueError:
-            st.error("Fehler beim Parsen der Zeile: " + line)
-    return events
 
 # Streamlit App UI
 st.title("SV Dörfleins Spielplan-ICS-Generator")
 
-# Eingabefeld für den Spielplan
-schedule_input = st.text_area("Geben Sie den Spielplan ein (Datum, Zeit, Teams):", height=150)
+# Upload-Feld für das PDF
+uploaded_file = st.file_uploader("Laden Sie den Spielplan als PDF hoch", type="pdf")
 
-if st.button('ICS-File erstellen'):
-    # Verarbeitung der Eingabe
-    events = process_schedule(schedule_input)
+if uploaded_file is not None and st.button('ICS-File erstellen'):
+    # Text aus dem PDF extrahieren
+    schedule_text = extract_text_from_pdf(uploaded_file)
+
+    # Verarbeitung des Spielplans
+    events = process_schedule(schedule_text)
 
     # Erstellung der ICS-Datei
     ics_content = create_ics(events)
