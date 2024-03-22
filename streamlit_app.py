@@ -27,21 +27,18 @@ def process_extracted_text(text):
 
         # Extrahiere die Uhrzeit
         time_match = re.search(r'\d{2}:\d{2}', line)
-        time_str = time_match.group() if time_match else None
+        if time_match:
+            time_str = time_match.group()
+            # Entferne Datum, Uhrzeit und etwaige Wochentage, um die Mannschaften zu isolieren
+            team_line = re.sub(r'\w+\.\d{2}\.\d{2}\.\d{4}\d{2}:\d{2}', '', line).strip()
+            teams = team_line.split(maxsplit=2)  # Trenne in Heim- und Gastmannschaft
 
-        # Trenne die Mannschaften und füge sie zur Liste hinzu
-        team_match = re.search(r'(\d{2}:\d{2})?\s*(.*)\s*-\s*(.*)', line)
-        if team_match:
-            heim, gast = team_match.group(2).strip(), team_match.group(3).strip()
-            if last_date and time_str:
-                data.append({
-                    "Datum": last_date, 
-                    "Uhrzeit": time_str, 
-                    "Heim": heim, 
-                    "Gast": gast
-                })
+            if len(teams) >= 2 and last_date:
+                heim, gast = teams[0], teams[1]
+                data.append({"Datum": last_date, "Uhrzeit": time_str, "Heim": heim, "Gast": gast})
 
     return pd.DataFrame(data)
+
 
 
 
