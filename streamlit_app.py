@@ -19,7 +19,7 @@ import re
 def process_schedule(text):
     events = []
     lines = text.split('\n')
-
+    
     # Regex-Muster zur Identifizierung von Spielzeilen
     match_pattern = r'(So\.|Do\.)\d{2}\.\d{2}\.\d{4}\s\d{2}:\d{2} .+ - .+'
 
@@ -48,6 +48,7 @@ def process_schedule(text):
             except Exception as e:
                 st.error(f"Fehler beim Parsen der Zeile: {line} - {e}")
                 continue
+    print("Gefundene Events:", events)  # Zum Debuggen            
     return events
 
 
