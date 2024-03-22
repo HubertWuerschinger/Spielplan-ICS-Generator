@@ -19,19 +19,20 @@ def process_extracted_text(text):
     last_date = None
 
     for line in lines:
+        # Prüfe, ob die Zeile ein Datum enthält
         date_match = re.search(r'\w+\.\d{2}\.\d{2}\.\d{4}\d{2}:\d{2}', line)
         if date_match:
-            date_str = date_match.group().split('.', 1)[1]
-            try:
-                last_date = datetime.strptime(date_str, '%d.%m.%Y%H:%M')
-            except ValueError:
-                continue
+            date_str = date_match.group().split('.', 1)[1]  # Entferne Wochentag
+            last_date = datetime.strptime(date_str, '%d.%m.%Y%H:%M')
 
-        if " - " in line and last_date:
+        # Prüfe, ob die Zeile Mannschaftsnamen enthält (ignoriere Überschriften)
+        if " - " in line and not "Heimmannschaft" in line:
             teams = line.split(" - ")
-            if len(teams) == 2:
-                heim, gast = teams[0], teams[1]
-                data.append({"Termin": last_date, "Heimmannschaft": heim.strip(), "Gastmannschaft": gast.strip()})
+            if len(teams) == 2 and last_date:
+                heim, gast = teams[0].strip(), teams[1].strip()
+                # Entferne Uhrzeit am Anfang, wenn vorhanden
+                heim = re.sub(r'^\d{2}:\d{2} ', '', heim)
+                data.append({"Termin": last_date, "Heimmannschaft": heim, "Gastmannschaft": gast})
 
     return pd.DataFrame(data)
 
