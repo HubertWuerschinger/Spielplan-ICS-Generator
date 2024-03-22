@@ -47,7 +47,7 @@ def process_schedule(text):
                 st.error(f"Fehler beim Parsen der Zeile: {line} - {e}")
                 continue
                        
-        return events
+ return events
 
 st.write(events)
 
