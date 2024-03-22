@@ -17,28 +17,38 @@ def process_extracted_text(text):
     lines = text.split('\n')
     data = []
     last_date = None
+    last_time = None
 
     for line in lines:
-        # Erkenne das Datum im Format "So.05.05.202409:00"
-        date_match = re.search(r'\w+\.\d{2}\.\d{2}\.\d{4}\d{2}:\d{2}', line)
+        # Erkenne das Datum und die Uhrzeit getrennt
+        date_match = re.search(r'\d{2}\.\d{2}\.\d{4}', line)
+        time_match = re.search(r'\d{2}:\d{2}', line)
         if date_match:
             date_str = date_match.group()
             try:
-                last_date = datetime.strptime(date_str.split('.', 1)[1], '%d.%m.%Y%H:%M')
+                last_date = datetime.strptime(date_str, '%d.%m.%Y').date()
             except ValueError:
                 continue
+        if time_match:
+            last_time = time_match.group()
 
-        # Teile die Zeile in Heimmannschaft und Gastmannschaft auf
+        # Trenne die Mannschaften
         if " - " in line:
             parts = line.split(" - ")
-            if len(parts) == 2 and last_date:
+            if len(parts) == 2 and last_date and last_time:
                 heim = parts[0].strip()
                 gast = parts[1].strip()
-                # Entferne die Uhrzeit von der Heimmannschaft, wenn vorhanden
-                heim = re.sub(r'^\d{2}:\d{2} ', '', heim)
-                data.append({"Termin": last_date, "Heimmannschaft": heim, "Gastmannschaft": gast})
+                # Entferne eine vorhandene Uhrzeit vom Namen der Heimmannschaft
+                heim = re.sub(r'\d{2}:\d{2} ', '', heim)
+                data.append({
+                    "Datum": last_date, 
+                    "Uhrzeit": last_time, 
+                    "Heim": heim, 
+                    "Gast": gast
+                })
 
     return pd.DataFrame(data)
+
 
 def main():
     st.title("Bereich aus PDF extrahieren und darstellen")
