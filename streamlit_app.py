@@ -20,35 +20,31 @@ def process_extracted_text(text):
     last_time = None
 
     for line in lines:
-        # Erkenne das Datum und die Uhrzeit getrennt
+        # Extrahiere das Datum, entferne den Wochentag
         date_match = re.search(r'\d{2}\.\d{2}\.\d{4}', line)
-        time_match = re.search(r'\d{2}:\d{2}', line)
         if date_match:
             date_str = date_match.group()
-            try:
-                last_date = datetime.strptime(date_str, '%d.%m.%Y').date()
-            except ValueError:
-                continue
+            last_date = datetime.strptime(date_str, '%d.%m.%Y').date()
+
+        # Extrahiere die Uhrzeit
+        time_match = re.search(r'\d{2}:\d{2}', line)
         if time_match:
             last_time = time_match.group()
 
-        # Trenne die Mannschaften
+        # Trenne die Mannschaften und füge sie zusammen mit Datum und Uhrzeit hinzu
         if " - " in line:
             parts = line.split(" - ")
-            if len(parts) == 2 and last_date and last_time:
-                heim = parts[0].strip()
+            if len(parts) == 2:
+                heim = parts[0].split()[-1]  # Nimm den letzten Teil nach der Uhrzeit
                 gast = parts[1].strip()
-                # Entferne eine vorhandene Uhrzeit vom Namen der Heimmannschaft
-                heim = re.sub(r'\d{2}:\d{2} ', '', heim)
                 data.append({
-                    "Datum": last_date, 
-                    "Uhrzeit": last_time, 
-                    "Heim": heim, 
+                    "Datum": last_date,
+                    "Uhrzeit": last_time,
+                    "Heim": heim,
                     "Gast": gast
                 })
 
     return pd.DataFrame(data)
-
 
 def main():
     st.title("Bereich aus PDF extrahieren und darstellen")
