@@ -19,28 +19,30 @@ def process_extracted_text(text):
     last_date = None
 
     for line in lines:
-        parts = line.split()
-        if not parts:
-            continue
+        # Ignoriere den Wochentag und extrahiere das Datum
+        date_match = re.search(r'\d{2}\.\d{2}\.\d{4}', line)
+        if date_match:
+            date_str = date_match.group()
+            last_date = datetime.strptime(date_str, '%d.%m.%Y').date()
 
-        # Erkenne und speichere das Datum, wenn vorhanden
-        if re.match(r'\d{2}\.\d{2}\.\d{4}', parts[0]):
-            last_date = datetime.strptime(parts.pop(0), '%d.%m.%Y').date()
+        # Extrahiere die Uhrzeit
+        time_match = re.search(r'\d{2}:\d{2}', line)
+        time_str = time_match.group() if time_match else None
 
-        # Gehe zur nächsten Zeile, falls keine Uhrzeit gefunden wird
-        if not re.match(r'\d{2}:\d{2}', parts[0]):
-            continue
-
-        # Entferne die Uhrzeit und behalte den Rest
-        parts.pop(0)  # Entferne Uhrzeit
-        team_line = ' '.join(parts)
-
-        # Trenne Heim- und Gastmannschaft
-        if " - " in team_line:
-            heim, gast = team_line.split(" - ", 1)
-            data.append({"Datum": last_date, "Heim": heim.strip(), "Gast": gast.strip()})
+        # Trenne die Mannschaften und füge sie zur Liste hinzu
+        team_match = re.search(r'(\d{2}:\d{2})?\s*(.*)\s*-\s*(.*)', line)
+        if team_match:
+            heim, gast = team_match.group(2).strip(), team_match.group(3).strip()
+            if last_date and time_str:
+                data.append({
+                    "Datum": last_date, 
+                    "Uhrzeit": time_str, 
+                    "Heim": heim, 
+                    "Gast": gast
+                })
 
     return pd.DataFrame(data)
+
 
 
 
