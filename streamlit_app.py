@@ -1,8 +1,11 @@
 import streamlit as st
-import pandas as pd
 import pdfplumber
 import io
+import numpy as np
+from streamlit_cropper import st_cropper
 from PIL import Image
+
+st.set_option('deprecation.showfileUploaderEncoding', False)
 
 # Funktion, um die erste Seite des PDFs als Bild umzuwandeln
 def convert_pdf_page_to_image(file, page_number=0):
@@ -30,27 +33,31 @@ if uploaded_file is not None:
         # Konvertiere das Bild in ein unterstütztes Format
         buffered = io.BytesIO()
         image.save(buffered, format="PNG")
-        st.image(buffered, caption='PDF Vorschau', use_column_width=True)
+        img = Image.open(buffered)
 
-        # Koordinaten für die Auswahl des Tabellenbereichs
-        st.write("Gib die Koordinaten für den Tabellenbereich ein (x1, y1, x2, y2):")
-        x1 = st.number_input("X1 Koordinate", min_value=0)
-        y1 = st.number_input("Y1 Koordinate", min_value=0)
-        x2 = st.number_input("X2 Koordinate", min_value=0)
-        y2 = st.number_input("Y2 Koordinate", min_value=0)
+        # Cropper Optionen
+        realtime_update = st.sidebar.checkbox("Update in Real Time", value=True)
+        box_color = st.sidebar.color_picker("Box Color", value='#0000FF')
+        stroke_width = st.sidebar.number_input("Box Thickness", value=3, step=1)
+        aspect_ratio = None  # Freie Auswahl des Bereichs
 
-        if st.button("Tabelle extrahieren"):
+        # Verwende Cropper, um den Bereich zu wählen
+        cropped_area = st_cropper(
+            img, 
+            realtime_update=realtime_update, 
+            box_color=box_color, 
+            aspect_ratio=aspect_ratio, 
+            return_type='box', 
+            stroke_width=stroke_width
+        )
+
+        if cropped_area and st.button("Tabelle extrahieren"):
             # Extrahiere Tabelle aus dem ausgewählten Bereich
-            table = extract_table_from_pdf_area(uploaded_file, (x1, y1, x2, y2))
+            table = extract_table_from_pdf_area(uploaded_file, cropped_area)
 
             if table:
                 # Wandle die extrahierte Tabelle in ein DataFrame um
                 df = pd.DataFrame(table[1:], columns=table[0])
 
-                # Zeige eine editierbare Tabelle an
-                edited_df = st.data_editor(df)
-
-                # Optionale Logik zur weiteren Verarbeitung der bearbeiteten Tabelle
-                # ...
-
-# Streamlit App Ende
+                # Zeige die bearbeitete Tabelle an
+                st.dataframe(df)
