@@ -12,7 +12,6 @@ def extract_text_from_pdf(uploaded_file):
     return text
 
 # Funktion zur Verarbeitung des Spielplans und Erstellung von Events
-
 def process_schedule(text):
     events = []
     lines = text.split('\n')
@@ -45,8 +44,7 @@ def process_schedule(text):
             except Exception as e:
                 st.error(f"Fehler beim Parsen der Zeile: {line} - {e}")
                 continue
-       return events
-
+    return events
 
 
 # Funktion zum Erstellen eines ICS- oder iCal-Files
