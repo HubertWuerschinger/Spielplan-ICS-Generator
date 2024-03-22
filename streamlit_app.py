@@ -40,7 +40,11 @@ def main():
     st.title("Bereich aus PDF extrahieren und darstellen")
 
     uploaded_file = st.file_uploader("Lade eine PDF-Datei hoch", type=["pdf"])
-    extracted_text = ''
+
+    # Zustandsvariable für den extrahierten Text
+    if 'extracted_text' not in st.session_state:
+        st.session_state['extracted_text'] = ''
+
     if uploaded_file is not None:
         x0 = st.sidebar.number_input("X0 Koordinate", min_value=0, value=0)
         y0 = st.sidebar.number_input("Y0 Koordinate", min_value=0, value=0)
@@ -50,7 +54,7 @@ def main():
         bbox = (x0, y0, x1, y1)
 
         if st.button("Bereich anzeigen"):
-            extracted_text = extract_data_from_pdf(uploaded_file, bbox)
+            st.session_state['extracted_text'] = extract_data_from_pdf(uploaded_file, bbox)
             with pdfplumber.open(uploaded_file) as pdf:
                 page = pdf.pages[0]
                 cropped_page = page.crop(bbox)
@@ -59,7 +63,7 @@ def main():
                 cropped_image = Image.open(image_stream)
                 st.image(cropped_image, caption="Ausgewählter Bereich", use_column_width=True)
 
-        text_area = st.text_area("Extrahierter Text", extracted_text, height=150)
+        text_area = st.text_area("Extrahierter Text", st.session_state['extracted_text'], height=150)
 
         if st.button("Tabelle aktualisieren"):
             if text_area:
