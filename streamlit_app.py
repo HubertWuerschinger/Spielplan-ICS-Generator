@@ -15,24 +15,28 @@ def process_schedule(text):
     events = []
     lines = text.split('\n')
     for line in lines:
-        if 'SV Dörfleins' in line:
-            # Hier die Logik zur Extraktion von Datum, Zeit und Gegner implementieren
-            # Beispiel: "So. 05.05.2024 09:00 SV Dörfleins - TSV Elsa"
-            parts = line.split()
-            date_str = parts[1]
-            time_str = parts[2]
-            opponent = parts[4]  # Beispiel, abhängig vom Format
+        parts = line.split()
+        # Überprüfen, ob die Zeile ausreichend Teile für Datum, Uhrzeit und Mannschaften enthält
+        if len(parts) >= 3 and "SV Dörfleins" in line:
+            try:
+                # Versuch, das Datum und die Uhrzeit zu parsen
+                date_str, time_str = parts[1], parts[2]
+                dt_start = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
+                dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
+                dt_end = dt_start + timedelta(hours=2)
 
-            dt_start = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
-            dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
-            dt_end = dt_start + timedelta(hours=2)  # Annahme: 2 Stunden pro Spiel
-
-            events.append({
-                "dtstart": dt_start,
-                "dtend": dt_end,
-                "opponent": opponent
-            })
+                opponent = parts[-1]
+                events.append({
+                    "dtstart": dt_start,
+                    "dtend": dt_end,
+                    "opponent": opponent,
+                    "home": "SV Dörfleins" in line
+                })
+            except ValueError:
+                st.error(f"Fehler beim Parsen der Zeile: {line}")
+                continue  # Fortfahren mit der nächsten Zeile
     return events
+
 
 # Funktion zum Erstellen eines ICS-Files
 def create_ics(events):
