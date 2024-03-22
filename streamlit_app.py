@@ -52,24 +52,32 @@ def process_schedule(text):
 
 
 
-# Funktion zum Erstellen eines ICS-Files
-def create_ics(events):
+# Funktion zum Erstellen eines ICS- oder iCal-Files
+def create_calendar_file(events, file_format="ics"):
     cal = Calendar()
     for event in events:
         cal_event = Event()
         cal_event.add('summary', f"SV Dörfleins vs {event['opponent']}")
         cal_event.add('dtstart', event['dtstart'])
         cal_event.add('dtend', event['dtend'])
-        cal_event.add('location', 'SV Dörfleins')  # Ort anpassen falls erforderlich
+        cal_event.add('location', 'SV Dörfleins' if event['home'] else 'Away')
         cal.add_component(cal_event)
-    return cal.to_ical()
+    
+    if file_format == "ics":
+        return cal.to_ical()
+    elif file_format == "ical":
+        # Hier können Sie spezifische Anpassungen für das iCal-Format vornehmen, falls notwendig
+        return cal.to_ical()
+    else:
+        raise ValueError("Unbekanntes Dateiformat")
 
 # Streamlit App UI
-st.title("SV Dörfleins Spielplan-ICS-Generator")
+st.title("SV Dörfleins Spielplan-ICS/iCal-Generator")
 
-uploaded_file = st.file_uploader("Laden Sie den Spielplan als PDF hoch", type=["pdf"])
+# Upload-Feld für das PDF
+uploaded_file = st.file_uploader("Laden Sie den Spielplan als PDF hoch", type="pdf")
 
-if st.button('ICS-File erstellen') and uploaded_file is not None:
+if uploaded_file is not None and st.button('Dateien erstellen'):
     # Text aus dem PDF extrahieren
     schedule_text = extract_text_from_pdf(uploaded_file)
 
@@ -77,12 +85,23 @@ if st.button('ICS-File erstellen') and uploaded_file is not None:
     events = process_schedule(schedule_text)
 
     # Erstellung der ICS-Datei
-    ics_content = create_ics(events)
+    ics_content = create_calendar_file(events, "ics")
 
-    # Download-Link für die ICS-Datei
+    # Erstellung des ICS-Download-Links
     st.download_button(
         label="Download ICS-Datei",
         data=ics_content,
         file_name="sv_doerfleins_schedule.ics",
+        mime="text/calendar"
+    )
+
+    # Erstellung der iCal-Datei (falls erforderlich unterschiedliche Logik)
+    ical_content = create_calendar_file(events, "ical")
+
+    # Erstellung des iCal-Download-Links
+    st.download_button(
+        label="Download iCal-Datei",
+        data=ical_content,
+        file_name="sv_doerfleins_schedule.ical",
         mime="text/calendar"
     )
