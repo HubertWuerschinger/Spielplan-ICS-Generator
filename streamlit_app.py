@@ -86,4 +86,3 @@ if uploaded_file is not None and st.button('ICS-File erstellen'):
         file_name="sv_doerfleins_schedule.ics",
         mime="text/calendar"
     )
-print(events)
