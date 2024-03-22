@@ -49,7 +49,7 @@ def process_schedule(text):
                        
         return events
 
-st.write(events)
+
 
 # Funktion zum Erstellen eines ICS-Files
 def create_ics(events):
