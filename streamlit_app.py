@@ -52,9 +52,12 @@ def process_schedule(text):
 
 
 
-# Funktion zum Erstellen eines ICS- oder iCal-Files
-def create_calendar_file(events, file_format="ics"):
+# Funktion zum Erstellen eines iCal-Files
+def create_ical_file(events):
     cal = Calendar()
+    cal.add('prodid', '<Your Product Identifier Here>')
+    cal.add('version', '2.0')
+
     for event in events:
         cal_event = Event()
         cal_event.add('summary', f"SV Dörfleins vs {event['opponent']}")
@@ -63,13 +66,7 @@ def create_calendar_file(events, file_format="ics"):
         cal_event.add('location', 'SV Dörfleins' if event['home'] else 'Away')
         cal.add_component(cal_event)
     
-    if file_format == "ics":
-        return cal.to_ical()
-    elif file_format == "ical":
-        # Hier können Sie spezifische Anpassungen für das iCal-Format vornehmen, falls notwendig
-        return cal.to_ical()
-    else:
-        raise ValueError("Unbekanntes Dateiformat")
+    return cal.to_ical()
 
 # Streamlit App UI
 st.title("SV Dörfleins Spielplan-ICS/iCal-Generator")
@@ -84,19 +81,8 @@ if uploaded_file is not None and st.button('Dateien erstellen'):
     # Verarbeitung des Spielplans
     events = process_schedule(schedule_text)
 
-    # Erstellung der ICS-Datei
-    ics_content = create_calendar_file(events, "ics")
-
-    # Erstellung des ICS-Download-Links
-    st.download_button(
-        label="Download ICS-Datei",
-        data=ics_content,
-        file_name="sv_doerfleins_schedule.ics",
-        mime="text/calendar"
-    )
-
-    # Erstellung der iCal-Datei (falls erforderlich unterschiedliche Logik)
-    ical_content = create_calendar_file(events, "ical")
+    # Erstellung der iCal-Datei
+    ical_content = create_ical_file(events)
 
     # Erstellung des iCal-Download-Links
     st.download_button(
