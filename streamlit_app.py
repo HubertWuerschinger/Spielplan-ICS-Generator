@@ -19,18 +19,22 @@ def process_extracted_text(text):
     last_date = None
 
     for line in lines:
-        # Prüfe, ob die Zeile ein Datum enthält
+        # Erkenne das Datum im Format "So.05.05.202409:00"
         date_match = re.search(r'\w+\.\d{2}\.\d{2}\.\d{4}\d{2}:\d{2}', line)
         if date_match:
-            date_str = date_match.group().split('.', 1)[1]  # Entferne Wochentag
-            last_date = datetime.strptime(date_str, '%d.%m.%Y%H:%M')
+            date_str = date_match.group()
+            try:
+                last_date = datetime.strptime(date_str.split('.', 1)[1], '%d.%m.%Y%H:%M')
+            except ValueError:
+                continue
 
-        # Prüfe, ob die Zeile Mannschaftsnamen enthält (ignoriere Überschriften)
-        if " - " in line and not "Heimmannschaft" in line:
-            teams = line.split(" - ")
-            if len(teams) == 2 and last_date:
-                heim, gast = teams[0].strip(), teams[1].strip()
-                # Entferne Uhrzeit am Anfang, wenn vorhanden
+        # Teile die Zeile in Heimmannschaft und Gastmannschaft auf
+        if " - " in line:
+            parts = line.split(" - ")
+            if len(parts) == 2 and last_date:
+                heim = parts[0].strip()
+                gast = parts[1].strip()
+                # Entferne die Uhrzeit von der Heimmannschaft, wenn vorhanden
                 heim = re.sub(r'^\d{2}:\d{2} ', '', heim)
                 data.append({"Termin": last_date, "Heimmannschaft": heim, "Gastmannschaft": gast})
 
