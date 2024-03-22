@@ -20,19 +20,20 @@ def process_extracted_text(text):
     last_date = None
 
     for line in lines:
+        # Prüfe jede Zeile, um das Datum und die Uhrzeit zu erkennen
+        # Beispiel: "12.03.2024 15:30"
         date_match = re.search(r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}', line)
         if date_match:
             last_date = datetime.strptime(date_match.group(), '%d.%m.%Y %H:%M')
+            continue  # Gehe zur nächsten Zeile, da diese nur ein Datum enthält
 
+        # Prüfe auf Mannschaftsnamen
         if " - " in line:
             teams = line.split(" - ")
-            if len(teams) == 2:
-                heim, gast = teams
-                heim = heim.split()[-1]
-                gast = gast.split()[0]
-                if last_date:
-                    data.append({"Termin": last_date, "Heimmannschaft": heim, "Gastmannschaft": gast})
-
+            if len(teams) == 2 and last_date:
+                heim, gast = teams[0], teams[1]
+                data.append({"Termin": last_date, "Heimmannschaft": heim.strip(), "Gastmannschaft": gast.strip()})
+    
     return pd.DataFrame(data)
 
 def main():
