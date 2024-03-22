@@ -48,7 +48,7 @@ def process_schedule(text):
             except Exception as e:
                 st.error(f"Fehler beim Parsen der Zeile: {line} - {e}")
                 print("Geparste Zeile:", line)  # Zum Debuggen
-                print("Gefundene Events:", events)  # Zum Debuggen  
+                
                 continue
               
     return events
