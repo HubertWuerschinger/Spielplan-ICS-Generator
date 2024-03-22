@@ -19,13 +19,18 @@ def process_extracted_text(text):
     data = []
     last_date = None
 
+    # Regulärer Ausdruck für das Datum und die Uhrzeit
+    date_pattern = re.compile(r'\w+\.\d{2}\.\d{2}\.\d{4}\d{2}:\d{2}')
+
     for line in lines:
         # Prüfe jede Zeile, um das Datum und die Uhrzeit zu erkennen
-        # Beispiel: "12.03.2024 15:30"
-        date_match = re.search(r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}', line)
+        date_match = date_pattern.search(line)
         if date_match:
-            last_date = datetime.strptime(date_match.group(), '%d.%m.%Y %H:%M')
-            continue  # Gehe zur nächsten Zeile, da diese nur ein Datum enthält
+            date_str = date_match.group()
+            # Entferne den Wochentag (z.B. "So.") und konvertiere in ein datetime-Objekt
+            date_str = date_str.split('.')[1]  # "05.05.202409:00"
+            last_date = datetime.strptime(date_str, '%d.%m.%Y%H:%M')
+            continue  # Überspringe den Rest der Schleife und gehe zur nächsten Zeile
 
         # Prüfe auf Mannschaftsnamen
         if " - " in line:
@@ -33,8 +38,9 @@ def process_extracted_text(text):
             if len(teams) == 2 and last_date:
                 heim, gast = teams[0], teams[1]
                 data.append({"Termin": last_date, "Heimmannschaft": heim.strip(), "Gastmannschaft": gast.strip()})
-    
+
     return pd.DataFrame(data)
+
 
 def main():
     st.title("Bereich aus PDF extrahieren und darstellen")
