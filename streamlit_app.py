@@ -73,7 +73,7 @@ def create_ics(events, team_name):
 
 # Streamlit App
 st.title("MyBigPoint Spielplan-ICS-Generator")
-
+st.write('Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)')
 uploaded_file = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
 
 # Eingabefelder für die Koordinaten
@@ -102,4 +102,4 @@ if uploaded_file is not None:
     # Download-Button ist jetzt korrekt definiert und wird nur aktiv, wenn 'ics_content' vorhanden ist
     st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
 
-st.markdown('Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)')
+
