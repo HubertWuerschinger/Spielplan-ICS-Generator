@@ -25,14 +25,16 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
 def process_schedule(text, team_name):
     events = []
     lines = text.split('\n')
-    date_pattern = r'(So\.|Mo\.|Di\.|Mi\.|Do\.|Fr\.|Sa\.)\s(\d{2}\.\d{2}\.\d{4})'
+    # Angepasstes Datumsmuster, um den fehlenden Zwischenraum zu berücksichtigen
+    date_pattern = r'(So\.|Mo\.|Di\.|Mi\.|Do\.|Fr\.|Sa\.)\d{2}\.\d{2}\.\d{4}'
     game_pattern = r'(\d{2}:\d{2})\s(.+)-(.+)'
     current_date = None
 
     for line in lines:
         date_match = re.search(date_pattern, line)
         if date_match:
-            current_date = date_match.group(2)  # Extrahiere nur das Datum
+            # Extrahiert das Datum, das unmittelbar auf den Wochentag folgt
+            current_date = date_match.group(0)[-10:]  # Nimmt die letzten 10 Zeichen für das Datum
 
         if current_date and team_name in line:
             game_match = re.search(game_pattern, line)
@@ -41,12 +43,13 @@ def process_schedule(text, team_name):
                 datetime_str = f"{current_date} {time}"
                 dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                 dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
-                dt_end = dt_start + timedelta(hours=2)  # Annahme: Jedes Spiel dauert 2 Stunden
+                dt_end = dt_start + timedelta(hours=2)
 
                 summary = f"{team1.strip()} vs {team2.strip()}"
                 events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
 
     return events
+
 
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events):
