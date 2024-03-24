@@ -65,32 +65,46 @@ def process_schedule(text, team_name, team_info):
 
 
 # Funktion zur Erstellung des ICS-Dateiinhalts
+def create_berlin_timezone():
+    # Erstellen einer VTIMEZONE-Komponente für Berlin
+    tz = Timezone()
+    tz.add('TZID', 'Europe/Berlin')
+
+    # Standardzeit-Komponente
+    tzs = TimezoneStandard()
+    tzs.add('DTSTART', datetime(1970, 10, 25, 3, 0, 0))
+    tzs.add('TZOFFSETFROM', timedelta(hours=2))
+    tzs.add('TZOFFSETTO', timedelta(hours=1))
+    tz.add_component(tzs)
+
+    # Sommerzeit-Komponente
+    tzd = TimezoneDaylight()
+    tzd.add('DTSTART', datetime(1970, 3, 29, 2, 0, 0))
+    tzd.add('TZOFFSETFROM', timedelta(hours=1))
+    tzd.add('TZOFFSETTO', timedelta(hours=2))
+    tz.add_component(tzd)
+
+    return tz
+
 def create_ics(events, team_name):
     cal = Calendar()
     cal.add('prodid', f'-//{team_name}//Match Schedule//EN')
     cal.add('version', '2.0')
-    berlin_timezone = pytz.timezone('Europe/Berlin')
+
+    # Fügen Sie die definierte Berliner Zeitzone hinzu
+    cal.add_component(create_berlin_timezone())
 
     for event in events:
         cal_event = Event()
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
-
-        # Konvertieren der datetime-Objekte in naive (zeitlose) und dann lokalisieren
-        dt_start_naive = event['dtstart'].replace(tzinfo=None)
-        dt_end_naive = event['dtend'].replace(tzinfo=None)
-
-        dt_start_berlin = berlin_timezone.localize(dt_start_naive, is_dst=None)
-        dt_end_berlin = berlin_timezone.localize(dt_end_naive, is_dst=None)
-
-        cal_event.add('dtstart', dt_start_berlin)
-        cal_event.add('dtend', dt_end_berlin)
+        cal_event.add('dtstart', event['dtstart'])
+        cal_event.add('dtend', event['dtend'])
         cal_event.add('location', event['location'])
 
         cal.add_component(cal_event)
 
     return cal.to_ical()
-    
 
 # Streamlit App
 st.markdown("# Spielplan-ICS-Generator :tennis:")
