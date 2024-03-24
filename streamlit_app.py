@@ -5,10 +5,13 @@ from datetime import datetime, timedelta
 import pytz
 from icalendar import Calendar, Event
 
-# Funktion zum Extrahieren von Text aus einem hochgeladenen PDF
-def extract_text_from_pdf(uploaded_file):
+# Funktion zum Extrahieren von Text aus einem bestimmten Bereich des hochgeladenen PDFs
+def extract_text_from_pdf_area(uploaded_file, bbox):
+    text = ""
     with pdfplumber.open(uploaded_file) as pdf:
-        text = ''.join([page.extract_text() for page in pdf.pages])
+        for page in pdf.pages:
+            cropped_page = page.within_bbox(bbox)
+            text += cropped_page.extract_text() or ""
     return text
 
 # Funktion zur Verarbeitung des Spielplans und Erstellung von Events
@@ -18,7 +21,6 @@ def process_schedule(text):
     date_pattern = r'(\d{2}\.\d{2}\.\d{4})'
     game_pattern = r'(\d{2}:\d{2})\s(.+?)-(.+)'
     current_date = None
-    processed_text = ""
 
     for line in lines:
         date_match = re.search(date_pattern, line)
@@ -30,14 +32,13 @@ def process_schedule(text):
             if game_match:
                 time, team1, team2 = game_match.groups()
                 datetime_str = f"{current_date} {time}"
-                processed_text += f"{datetime_str} {team1} - {team2}\n"
                 dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                 dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
                 dt_end = dt_start + timedelta(hours=2)
                 summary = f"{team1.strip()} vs {team2.strip()}"
                 events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
 
-    return events, processed_text
+    return events
 
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events):
@@ -57,10 +58,18 @@ st.title("SV Dörfleins Spielplan-ICS-Generator")
 
 uploaded_file = st.file_uploader("Laden Sie den Spielplan als PDF hoch", type="pdf")
 
+# Eingabefelder für die Koordinaten
+x1 = st.number_input("X1-Koordinate", min_value=0, value=0)
+y1 = st.number_input("Y1-Koordinate", min_value=0, value=0)
+x2 = st.number_input("X2-Koordinate", min_value=0, value=100)
+y2 = st.number_input("Y2-Koordinate", min_value=0, value=100)
+
 if uploaded_file is not None:
-    schedule_text = extract_text_from_pdf(uploaded_file)
+    bbox = (x1, y1, x2, y2)
+    schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
-    processed_events, processed_text = process_schedule(schedule_text)
-    processed_text = st.text_area("Verarbeiteter Text für ICS-Datei", processed_text, height=300)
-    ics_content = create_ics(processed_events)
-    st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
+
+    if st.button('ICS-Datei erstellen'):
+        processed_events = process_schedule(schedule_text)
+        ics_content = create_ics(processed_events)
+        st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
