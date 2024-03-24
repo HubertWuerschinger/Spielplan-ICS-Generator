@@ -21,7 +21,7 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
             st.image(pil_image)
     return text
 
-# Funktion zur Verarbeitung des Spielplans und Erstellung von Events
+# Anpassen der Logik zur korrekten Verarbeitung des Textes
 def process_schedule(text, team_name):
     events = []
     lines = text.split('\n')
@@ -32,8 +32,7 @@ def process_schedule(text, team_name):
     for line in lines:
         date_match = re.search(date_pattern, line)
         if date_match:
-            # Entfernen des Wochentags und Verwenden nur des Datums
-            current_date = date_match.group(2)
+            current_date = date_match.group(2)  # Extrahiere nur das Datum
 
         if current_date and team_name in line:
             game_match = re.search(game_pattern, line)
@@ -42,7 +41,7 @@ def process_schedule(text, team_name):
                 datetime_str = f"{current_date} {time}"
                 dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                 dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
-                dt_end = dt_start + timedelta(hours=2)
+                dt_end = dt_start + timedelta(hours=2)  # Annahme: Jedes Spiel dauert 2 Stunden
 
                 summary = f"{team1.strip()} vs {team2.strip()}"
                 events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
@@ -79,7 +78,9 @@ if uploaded_file is not None:
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
     if st.button('ICS-Datei erstellen'):
-        processed_events = process_schedule(schedule_text, "SV Dörfleins")
+        # Erstellen der ICS-Datei
+        team_name = "SV Dörfleins"
+        events = process_schedule(extracted_text, team_name)
         ics_content = create_ics(processed_events)
         st.text_area("ICS-Datei Inhalt", ics_content.decode("utf-8"), height=300)  # Bearbeitbarer ICS-Inhalt
         st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
