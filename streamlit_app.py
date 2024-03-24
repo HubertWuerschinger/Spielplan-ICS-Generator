@@ -69,7 +69,7 @@ def create_ics(events, team_name):
     cal = Calendar()
     cal.add('prodid', f'-//{team_name}//Match Schedule//EN')
     cal.add('version', '2.0')
-    berlin_timezone = pytz.timezone('Europe/Berlin')
+
 
     for event in events:
         cal_event = Event()
