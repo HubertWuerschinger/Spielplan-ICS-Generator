@@ -72,15 +72,16 @@ def create_ics(events, team_name):
     return cal.to_ical()
 
 # Streamlit App
-st.title("SV Dörfleins Spielplan-ICS-Generator")
+st.title("MyBigPoint Spielplan-ICS-Generator")
 
 uploaded_file = st.file_uploader("Laden Sie den Spielplan als PDF hoch", type="pdf")
 
 # Eingabefelder für die Koordinaten
-x1 = st.number_input("X1-Koordinate", min_value=0, value=0)
-y1 = st.number_input("Y1-Koordinate", min_value=0, value=0)
-x2 = st.number_input("X2-Koordinate", min_value=0, value=100)
-y2 = st.number_input("Y2-Koordinate", min_value=0, value=100)
+st.write=("Passe die Koordinaten für den relevanten Bereich an, falls notwendig")
+x1 = st.number_input("X1-Koordinate", min_value=0, value=400)
+y1 = st.number_input("Y1-Koordinate", min_value=0, value=100)
+x2 = st.number_input("X2-Koordinate", min_value=0, value=7500)
+y2 = st.number_input("Y2-Koordinate", min_value=0, value=500)
 
 # ...
 
@@ -89,14 +90,14 @@ if uploaded_file is not None:
     schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
-    team_name = st.text_input("Geben Sie den Namen der Mannschaft ein", "")
+    team_name = st.text_input("Geben den Namen deiner Mannschaft ein", "")
 
     # Definiere 'events' und 'ics_content' außerhalb des Button-Drucks
     events = process_schedule(schedule_text, team_name)
     ics_content = create_ics(events, team_name)
 
-    if st.button('Vorschau ICS-Datei') and team_name:
+    if st.button('Vorschau des ICS Files') and team_name:
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
 
     # Download-Button ist jetzt korrekt definiert und wird nur aktiv, wenn 'ics_content' vorhanden ist
-    st.download_button("Download ICS-Datei", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
+    st.download_button("Download ICS-Datei und laden in Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
