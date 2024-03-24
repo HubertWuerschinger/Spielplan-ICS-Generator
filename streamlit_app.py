@@ -88,19 +88,24 @@ def create_berlin_timezone():
 
     return tz
 
+
 def create_ics(events, team_name):
     cal = Calendar()
     cal.add('prodid', f'-//{team_name}//Match Schedule//EN')
     cal.add('version', '2.0')
+    berlin_timezone = pytz.timezone('Europe/Berlin')
 
     for event in events:
         cal_event = Event()
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
 
-        # Fügen Sie das 'TZID' für die Zeitzone direkt in dtstart und dtend hinzu
-        cal_event.add('dtstart', event['dtstart'], parameters={'TZID': 'Europe/Berlin'})
-        cal_event.add('dtend', event['dtend'], parameters={'TZID': 'Europe/Berlin'})
+        # Konvertieren der Zeit in UTC
+        dt_start_utc = berlin_timezone.localize(event['dtstart']).astimezone(pytz.utc)
+        dt_end_utc = berlin_timezone.localize(event['dtend']).astimezone(pytz.utc)
+
+        cal_event.add('dtstart', dt_start_utc)
+        cal_event.add('dtend', dt_end_utc)
         cal_event.add('location', event['location'])
 
         cal.add_component(cal_event)
