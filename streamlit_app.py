@@ -38,7 +38,7 @@ def process_schedule(text, team_name):
             game_match = re.search(game_pattern, line)
             if game_match:
                 time, teams = game_match.groups()
-                if team_name in teams:
+                if '-' in teams and team_name in teams:  # Überprüft, ob die Zeile zwei Teams enthält
                     team1, team2 = teams.split(" - ")
                     datetime_str = f"{current_date} {time}"
                     dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
