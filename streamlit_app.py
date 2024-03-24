@@ -57,7 +57,8 @@ def process_schedule(text, team_name, team_info):
                     
                     # Bestimme die Location basierend auf dem ersten genannten Verein
                     location = team1 if teams.index(team1) < teams.index(team2) else team2
-                    
+        
+                   
                     events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description, "location": location})
 
     return events
@@ -75,6 +76,10 @@ def create_ics(events, team_name):
         cal_event.add('dtstart', event['dtstart'])
         cal_event.add('dtend', event['dtend'])
         cal_event.add('location', event['location'])  # Ort hinzufügen
+                    
+         # Fügen Sie das 'TZID' für die Zeitzone hinzu
+        cal_event['dtstart'].params['TZID'] = 'Europe/Berlin'
+        cal_event['dtend'].params['TZID'] = 'Europe/Berlin'
         cal.add_component(cal_event)
     return cal.to_ical()
 
