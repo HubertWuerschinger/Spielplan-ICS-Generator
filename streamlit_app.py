@@ -5,13 +5,13 @@ from datetime import datetime, timedelta
 import pytz
 from icalendar import Calendar, Event
 
-# Function to extract text from an uploaded PDF
+# Funktion zum Extrahieren von Text aus einem hochgeladenen PDF
 def extract_text_from_pdf(uploaded_file):
     with pdfplumber.open(uploaded_file) as pdf:
         text = ''.join([page.extract_text() for page in pdf.pages])
     return text
 
-# Function to process the schedule and create events
+# Funktion zur Verarbeitung des Spielplans und Erstellung von Events
 def process_schedule(text):
     events = []
     lines = text.split('\n')
@@ -37,7 +37,7 @@ def process_schedule(text):
 
     return events
 
-# Function to create ICS file content
+# Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events):
     cal = Calendar()
     cal.add('prodid', '-//SV Doerfleins//Match Schedule//EN')
@@ -55,8 +55,9 @@ st.title("SV Dörfleins Spielplan-ICS-Generator")
 
 uploaded_file = st.file_uploader("Laden Sie den Spielplan als PDF hoch", type="pdf")
 
-if uploaded_file is not None and st.button('ICS-Datei erstellen'):
+if uploaded_file is not None:
     schedule_text = extract_text_from_pdf(uploaded_file)
-    events = process_schedule(schedule_text)
-    ics_content = create_ics(events)
+    schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
+    processed_events = process_schedule(schedule_text)
+    ics_content = create_ics(processed_events)
     st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
