@@ -80,7 +80,7 @@ if uploaded_file is not None:
     if st.button('ICS-Datei erstellen'):
         # Erstellen der ICS-Datei
         team_name = "SV Dörfleins"
-        events = process_schedule(extracted_text, team_name)
+        events = process_schedule(schedule_text, team_name)
         ics_content = create_ics(processed_events)
         st.text_area("ICS-Datei Inhalt", ics_content.decode("utf-8"), height=300)  # Bearbeitbarer ICS-Inhalt
         st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
