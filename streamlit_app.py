@@ -94,7 +94,21 @@ y1 = st.number_input("Y1-Koordinate", min_value=0, value=100)
 x2 = st.number_input("X2-Koordinate", min_value=0, value=750)
 y2 = st.number_input("Y2-Koordinate", min_value=0, value=500)
 
+
 if uploaded_file is not None:
     bbox = (x1, y1, x2, y2)
     schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
-    schedule_text = st.text_area
+    schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
+
+    team_name = st.text_input("Gib den Vereinsnamen ein, genauso wie er in der Vorschau angezeigt wird", "")
+    team_info = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein z.B. 1. Mannschaft Herren", "")
+
+    # Definiere 'events' und 'ics_content' außerhalb des Button-Drucks
+    events = process_schedule(schedule_text, team_name, team_info)
+    ics_content = create_ics(events, team_name)
+
+    if st.button('Vorschau des ICS Files') and team_name:
+        st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
+
+    # Download-Button ist jetzt korrekt definiert und wird nur aktiv, wenn 'ics_content' vorhanden ist
+    st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
