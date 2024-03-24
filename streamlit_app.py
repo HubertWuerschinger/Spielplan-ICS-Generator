@@ -87,10 +87,11 @@ if uploaded_file is not None:
     schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
+    team_name = "SV Dörfleins"
+    events = process_schedule(schedule_text, team_name)
+    ics_content = create_ics(events)
+
     if st.button('Vorschau ICS-Datei'):
-        team_name = "SV Dörfleins"
-        events = process_schedule(schedule_text, team_name)
-        ics_content = create_ics(events)
         # Anzeige des ICS-Dateiinhalts (Vorschau)
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
 
