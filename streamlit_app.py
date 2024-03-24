@@ -98,4 +98,5 @@ y2 = st.number_input("Y2-Koordinate", min_value=0, value=500)
 
 if uploaded_file is not None:
     bbox = (x1, y1, x2, y2)
-    schedule_text = extract_text_from_pdf_area(uploaded
+    schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
+    schedule_text = st.text_area
