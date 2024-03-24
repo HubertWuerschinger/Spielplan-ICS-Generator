@@ -12,7 +12,9 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
         for page in pdf.pages:
             cropped_page = page.crop(bbox)
             text += cropped_page.extract_text() or ""
-            st.image(cropped_page.to_image(resolution=150))  # Zeigt Vorschau des Bereichs
+            # Konvertieren in ein PIL-Image und Anzeigen der Vorschau
+            pil_image = Image.open(io.BytesIO(cropped_page.to_image(resolution=150).original))
+            st.image(pil_image)
     return text
 
 # Funktion zur Verarbeitung des Spielplans und Erstellung von Events
