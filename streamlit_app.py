@@ -28,7 +28,6 @@ def process_schedule(text, team_name, team_info):
     date_pattern = r'(So\.|Mo\.|Di\.|Mi\.|Do\.|Fr\.|Sa\.)\d{2}\.\d{2}\.\d{4}'
     game_pattern = r'(\d{2}:\d{2})\s(.+)'
     current_date = None
-    berlin_timezone = pytz.timezone("Europe/Berlin")
 
     for line in lines:
         date_match = re.search(date_pattern, line)
@@ -40,6 +39,7 @@ def process_schedule(text, team_name, team_info):
             if game_match:
                 time, teams = game_match.groups()
                 if team_name in teams:
+                    # Teilt den String basierend auf der Position von "SV Dörfleins"
                     if teams.startswith(team_name):
                         team1 = team_name
                         team2 = teams[len(team_name):].strip()
@@ -49,19 +49,19 @@ def process_schedule(text, team_name, team_info):
 
                     datetime_str = f"{current_date} {time}"
                     dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
-                    dt_start = berlin_timezone.localize(dt_start)
-
-                    if dt_start.dst() != timedelta(0):
-                        dt_start -= timedelta(hours=1)
-
+                    dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
                     dt_end = dt_start + timedelta(hours=2)
-                    
+
                     summary = f"{team1} vs {team2}"
                     description = f"{team_info}\nMannschaft: {team_name}"
+                    
+                    # Bestimme die Location basierend auf dem ersten genannten Verein
                     location = team1 if teams.index(team1) < teams.index(team2) else team2
+                    
                     events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description, "location": location})
 
     return events
+
 
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events, team_name):
