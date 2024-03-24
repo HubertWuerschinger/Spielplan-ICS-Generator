@@ -4,6 +4,8 @@ import re
 from datetime import datetime, timedelta
 import pytz
 from icalendar import Calendar, Event
+from PIL import Image
+import io
 
 # Funktion zum Extrahieren von Text aus einem bestimmten Bereich des hochgeladenen PDFs
 def extract_text_from_pdf_area(uploaded_file, bbox):
@@ -13,7 +15,9 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
             cropped_page = page.crop(bbox)
             text += cropped_page.extract_text() or ""
             # Konvertieren in ein PIL-Image und Anzeigen der Vorschau
-            pil_image = Image.open(io.BytesIO(cropped_page.to_image(resolution=150).original))
+            image_stream = io.BytesIO()
+            cropped_page.to_image(resolution=150).save(image_stream, format="PNG")
+            pil_image = Image.open(image_stream)
             st.image(pil_image)
     return text
 
