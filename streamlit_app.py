@@ -75,13 +75,16 @@ def create_ics(events, team_name):
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
 
-        # Fügen Sie die datetime-Objekte direkt hinzu
-        cal_event.add('dtstart', event['dtstart'])
-        cal_event.add('dtend', event['dtend'])
+        # Konvertieren der extrahierten Datums- und Zeitstrings in datetime-Objekte
+        dt_start = berlin_timezone.localize(event['dtstart'])
+        dt_end = berlin_timezone.localize(event['dtend'])
+
+        cal_event.add('dtstart', dt_start)
+        cal_event.add('dtend', dt_end)
         cal_event.add('location', event['location'])
 
         cal.add_component(cal_event)
-
+    
     return cal.to_ical()
     
 
