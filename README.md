@@ -1,2 +1,2 @@
-# Image2Invoice
-Create an Invoice via Camera Picture of handwritten Text
+Spielplan-ICS-Generator :tennis
+Erstellung von ICS Files für die Mannschaftspiele aus MyBigPoint PDF
