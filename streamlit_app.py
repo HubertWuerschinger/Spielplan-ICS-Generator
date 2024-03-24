@@ -79,7 +79,7 @@ st.title("MyBigPoint Spielplan-ICS-Generator")
 st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
 
 # Anzeige des GitHub-Logos mit st.image
-github_logo_url = "https://cdn.icon-icons.com/icons2/2248/PNG/512/github_icon_135161.png"
+github_logo_url = "https://github.githubassets.com/assets/GitHub-Logo-ee398b662d42.png"
 st.image(github_logo_url, width=100)  # Anpassen der Breite nach Bedarf
 
 
