@@ -103,5 +103,4 @@ if uploaded_file is not None:
     st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
 
 # Hier fügen Sie den Link zu Ihrem GitHub-Profil am Ende der Streamlit-App hinzu
-st.markdown('## Mein GitHub-Profil')
 st.markdown('Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)')
