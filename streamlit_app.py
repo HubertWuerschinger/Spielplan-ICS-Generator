@@ -50,7 +50,7 @@ def process_schedule(text, team_name, team_info):
                     datetime_str = f"{current_date} {time}"
                     dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                     dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
-                    dt_end = dt_start + timedelta(hours=2)
+                    dt_end = dt_start + timedelta(hours=5)
 
                     summary = f"{team1} vs {team2}"
                     description = f"{team_info}\nMannschaft: {team_name}"
