@@ -100,4 +100,4 @@ if uploaded_file is not None:
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
 
     # Download-Button ist jetzt korrekt definiert und wird nur aktiv, wenn 'ics_content' vorhanden ist
-    st.download_button("Download ICS-Datei und laden in Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
+    st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
