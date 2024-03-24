@@ -22,34 +22,38 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
     return text
 
 # Funktion zur Verarbeitung des Spielplans und Erstellung von Events
-def process_schedule(text):
+def process_schedule(text, team_name):
     events = []
     lines = text.split('\n')
-    date_pattern = r'(So\.|Mo\.|Di\.|Mi\.|Do\.|Fr\.|Sa\.)\s(\d{2}\.\d{2}\.\d{4})'
-    game_pattern = r'(\d{2}:\d{2})\s(.+)'
+    date_pattern = r'(So\.|Mo\.|Di\.|Mi\.|Do\.|Fr\.|Sa\.)\d{2}\.\d{2}\.\d{4}'
+    game_pattern = r'(\d{2}:\d{2})\s(.+)-(.+)'
     current_date = None
 
     for line in lines:
-        date_match = re.match(date_pattern, line)
+        # Datum extrahieren
+        date_match = re.search(date_pattern, line)
         if date_match:
-            _, current_date = date_match.groups()
+            current_date = date_match.group(0)
 
-        if current_date:
-            game_match = re.match(game_pattern, line)
+        # Spielbegegnungen extrahieren
+        if current_date and team_name in line:
+            game_match = re.search(game_pattern, line)
             if game_match:
-                time, teams = game_match.groups()
+                time, team1, team2 = game_match.groups()
                 datetime_str = f"{current_date} {time}"
                 dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                 dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
-                dt_end = dt_start + timedelta(hours=2)  # assuming each event lasts 2 hours
-                events.append({"dtstart": dt_start, "dtend": dt_end, "summary": teams})
+                dt_end = dt_start + timedelta(hours=2)  # Annahme: Jedes Spiel dauert 2 Stunden
+
+                summary = f"{team1.strip()} vs {team2.strip()}"
+                events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
 
     return events
 
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events):
     cal = Calendar()
-    cal.add('prodid', '-//SV Doerfleins//Match Schedule//EN')
+    cal.add('prodid', '-//SV Dörfleins//Match Schedule//EN')
     cal.add('version', '2.0')
     for event in events:
         cal_event = Event()
@@ -76,7 +80,7 @@ if uploaded_file is not None:
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
     if st.button('ICS-Datei erstellen'):
-        processed_events = process_schedule(schedule_text)
+        processed_events = process_schedule(schedule_text, "SV Dörfleins")
         ics_content = create_ics(processed_events)
         st.text_area("ICS-Datei Inhalt", ics_content.decode("utf-8"), height=300)  # Bearbeitbarer ICS-Inhalt
         st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
