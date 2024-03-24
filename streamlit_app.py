@@ -50,11 +50,14 @@ def process_schedule(text, team_name, team_info):
                     datetime_str = f"{current_date} {time}"
                     dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                     dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
-                    dt_end = dt_start + timedelta(hours=2)
+                    
+                    # Endzeit auf 5 Stunden nach dem Startzeitpunkt festlegen
+                    dt_end = dt_start + timedelta(hours=5)
 
                     summary = f"{team1} vs {team2}"
-                    description = f"Mannschaft: {team_info}"
-                    events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description})
+                    description = f"{team_info}\nMannschaft: {team_name}"
+                    location = team_name  # Ort des Vereins als Ort im Kalender verwenden
+                    events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description, "location": location})
 
     return events
 
@@ -70,13 +73,12 @@ def create_ics(events, team_name):
         cal_event.add('description', event['description'])
         cal_event.add('dtstart', event['dtstart'])
         cal_event.add('dtend', event['dtend'])
+        cal_event.add('location', event['location'])  # Ort hinzufügen
         cal.add_component(cal_event)
     return cal.to_ical()
 
 # Streamlit App
-# Streamlit App
 st.markdown("# Spielplan-ICS-Generator :tennis:")
-
 
 # Verwenden von st.markdown, um den Link zu Ihrem GitHub-Profil anzuzeigen
 st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
@@ -84,7 +86,6 @@ st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://githu
 # Anzeige des GitHub-Logos mit st.image
 github_logo_url = "https://github.githubassets.com/assets/GitHub-Logo-ee398b662d42.png"
 st.image(github_logo_url, width=100)  # Anpassen der Breite nach Bedarf
-
 
 uploaded_file = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
 
@@ -95,22 +96,6 @@ y1 = st.number_input("Y1-Koordinate", min_value=0, value=100)
 x2 = st.number_input("X2-Koordinate", min_value=0, value=750)
 y2 = st.number_input("Y2-Koordinate", min_value=0, value=500)
 
-# ...
-
 if uploaded_file is not None:
     bbox = (x1, y1, x2, y2)
-    schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
-    schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
-
-    team_name = st.text_input("Gib den Vereinsnamen ein, genauso wie er in der Vorschau angezeigt wird", "")
-    team_info = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein z.B. 1. Mannschaft Herren", "")
-
-    # Definiere 'events' und 'ics_content' außerhalb des Button-Drucks
-    events = process_schedule(schedule_text, team_name, team_info)
-    ics_content = create_ics(events, team_name)
-
-    if st.button('Vorschau des ICS Files') and team_name:
-        st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
-
-    # Download-Button ist jetzt korrekt definiert und wird nur aktiv, wenn 'ics_content' vorhanden ist
-    st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
+    schedule_text = extract_text_from_pdf_area(uploaded
