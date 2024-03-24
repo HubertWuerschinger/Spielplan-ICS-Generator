@@ -1,13 +1,11 @@
 import streamlit as st
 import pdfplumber
 import re
+from datetime import datetime, timedelta
 import pytz
 from icalendar import Calendar, Event
 from PIL import Image
 import io
-from icalendar import Calendar, Event, Timezone, TimezoneStandard, TimezoneDaylight
-import pytz
-from datetime import datetime, timedelta
 
 # Funktion zum Extrahieren von Text aus einem bestimmten Bereich des hochgeladenen PDFs
 def extract_text_from_pdf_area(uploaded_file, bbox):
@@ -16,7 +14,6 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
         for page in pdf.pages:
             cropped_page = page.crop(bbox)
             text += cropped_page.extract_text() or ""
-            # Konvertieren in ein PIL-Image und Anzeigen der Vorschau
             image_stream = io.BytesIO()
             cropped_page.to_image(resolution=150).save(image_stream, format="PNG")
             pil_image = Image.open(image_stream)
@@ -41,7 +38,6 @@ def process_schedule(text, team_name, team_info):
             if game_match:
                 time, teams = game_match.groups()
                 if team_name in teams:
-                    # Teilt den String basierend auf der Position von "SV Dörfleins"
                     if teams.startswith(team_name):
                         team1 = team_name
                         team2 = teams[len(team_name):].strip()
@@ -56,38 +52,10 @@ def process_schedule(text, team_name, team_info):
 
                     summary = f"{team1} vs {team2}"
                     description = f"{team_info}\nMannschaft: {team_name}"
-                    
-                    # Bestimme die Location basierend auf dem ersten genannten Verein
                     location = team1 if teams.index(team1) < teams.index(team2) else team2
-        
-                   
                     events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description, "location": location})
 
     return events
-
-
-# Funktion zur Erstellung des ICS-Dateiinhalts
-def create_berlin_timezone():
-    # Erstellen einer VTIMEZONE-Komponente für Berlin
-    tz = Timezone()
-    tz.add('TZID', 'Europe/Berlin')
-
-    # Standardzeit-Komponente
-    tzs = TimezoneStandard()
-    tzs.add('DTSTART', datetime(1970, 10, 25, 3, 0, 0))
-    tzs.add('TZOFFSETFROM', timedelta(hours=2))
-    tzs.add('TZOFFSETTO', timedelta(hours=1))
-    tz.add_component(tzs)
-
-    # Sommerzeit-Komponente
-    tzd = TimezoneDaylight()
-    tzd.add('DTSTART', datetime(1970, 3, 29, 2, 0, 0))
-    tzd.add('TZOFFSETFROM', timedelta(hours=1))
-    tzd.add('TZOFFSETTO', timedelta(hours=2))
-    tz.add_component(tzd)
-
-    return tz
-
 
 def create_ics(events, team_name):
     cal = Calendar()
@@ -99,64 +67,29 @@ def create_ics(events, team_name):
         cal_event = Event()
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
-
-        # Direkte Konvertierung in UTC, wenn eine Zeitzone vorhanden ist
         dt_start_utc = event['dtstart'].astimezone(utc_timezone) if event['dtstart'].tzinfo else utc_timezone.localize(event['dtstart'])
         dt_end_utc = event['dtend'].astimezone(utc_timezone) if event['dtend'].tzinfo else utc_timezone.localize(event['dtend'])
-
         cal_event.add('dtstart', dt_start_utc)
         cal_event.add('dtend', dt_end_utc)
         cal_event.add('location', event['location'])
-
         cal.add_component(cal_event)
 
     return cal.to_ical()
 
-# Funktion zur Aktualisierung der ICS-Vorschau
-def update_ics_preview():
-    if 'uploaded_file' in st.session_state and 'team_name' in st.session_state and 'schedule_text' in st.session_state:
-        uploaded_file = st.session_state['uploaded_file']
-        team_name = st.session_state['team_name']
-        schedule_text = st.session_state['schedule_text']
-        team_info = st.session_state.get('team_info', '')
-
-        if uploaded_file and team_name and schedule_text:
-            events = process_schedule(schedule_text, team_name, team_info)
-            ics_content = create_ics(events, team_name)
-            st.session_state['ics_preview'] = ics_content.decode("utf-8")
-
-
 # Streamlit App
 st.markdown("# Spielplan-ICS-Generator :tennis:")
-
-# Verwenden von st.markdown, um den Link zu Ihrem GitHub-Profil anzuzeigen
 st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
-
-# Anzeige des GitHub-Logos mit st.image
 github_logo_url = "https://github.githubassets.com/assets/GitHub-Logo-ee398b662d42.png"
 st.image(github_logo_url, width=100)  # Anpassen der Breite nach Bedarf
 
 uploaded_file = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
 
 # Eingabefelder für die Koordinaten
-st.write=("Passe die Koordinaten für den relevanten Bereich an, falls notwendig")
 x1 = st.number_input("X1-Koordinate", min_value=0, value=400)
 y1 = st.number_input("Y1-Koordinate", min_value=0, value=100)
 x2 = st.number_input("X2-Koordinate", min_value=0, value=750)
 y2 = st.number_input("Y2-Koordinate", min_value=0, value=500)
 
-# Verwendung von on_change-Callbacks
-st.session_state['uploaded_file'] = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf", on_change=update_ics_preview, key='uploaded_file')
-st.session_state['team_name'] = st.text_input("Gib den Vereinsnamen ein, genauso wie er in der Vorschau angezeigt wird", "", on_change=update_ics_preview, key='team_name')
-st.session_state['team_info'] = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein z.B. 1. Mannschaft Herren", "", on_change=update_ics_preview, key='team_info')
-
-# Vorschau der ICS-Datei
-#if 'ics_preview' in st.session_state:
-#    st.text_area("Vorschau ICS-Datei", st.session_state['ics_preview'], height=300)
-
-# Download-Button
-if 'ics_preview' in st.session_state:
-    st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=st.session_state['ics_preview'].encode('utf-8'), file_name=f"{st.session_state['team_name']}_schedule.ics", mime="text/calendar")
 if uploaded_file is not None:
     bbox = (x1, y1, x2, y2)
     schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
@@ -165,12 +98,9 @@ if uploaded_file is not None:
     team_name = st.text_input("Gib den Vereinsnamen ein, genauso wie er in der Vorschau angezeigt wird", "")
     team_info = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein z.B. 1. Mannschaft Herren", "")
 
-    # Definiere 'events' und 'ics_content' außerhalb des Button-Drucks
-    events = process_schedule(schedule_text, team_name, team_info)
-    ics_content = create_ics(events, team_name)
-
-    if st.button('Vorschau des ICS Files') and team_name:
+    if st.button('Erstelle ICS-Datei'):
+        events = process_schedule(schedule_text, team_name, team_info)
+        ics_content = create_ics(events, team_name)
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
+        st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
 
-    # Download-Button ist jetzt korrekt definiert und wird nur aktiv, wenn 'ics_content' vorhanden ist
-    st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
