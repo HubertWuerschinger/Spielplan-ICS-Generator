@@ -80,7 +80,7 @@ uploaded_file = st.file_uploader("Laden Sie den Spielplan als PDF hoch", type="p
 st.write=("Passe die Koordinaten für den relevanten Bereich an, falls notwendig")
 x1 = st.number_input("X1-Koordinate", min_value=0, value=400)
 y1 = st.number_input("Y1-Koordinate", min_value=0, value=100)
-x2 = st.number_input("X2-Koordinate", min_value=0, value=7500)
+x2 = st.number_input("X2-Koordinate", min_value=0, value=750)
 y2 = st.number_input("Y2-Koordinate", min_value=0, value=500)
 
 # ...
