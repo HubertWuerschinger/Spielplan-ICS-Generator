@@ -22,7 +22,7 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
     return text
 
 # Anpassen der Logik zur korrekten Verarbeitung des Textes
-def process_schedule(text, team_name):
+def process_schedule(text, team_name, team_info):
     events = []
     lines = text.split('\n')
     date_pattern = r'(So\.|Mo\.|Di\.|Mi\.|Do\.|Fr\.|Sa\.)\d{2}\.\d{2}\.\d{4}'
@@ -53,7 +53,8 @@ def process_schedule(text, team_name):
                     dt_end = dt_start + timedelta(hours=2)
 
                     summary = f"{team1} vs {team2}"
-                    events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
+                    description = f"Mannschaft: {team_info}"
+                    events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description})
 
     return events
 
@@ -66,6 +67,7 @@ def create_ics(events, team_name):
     for event in events:
         cal_event = Event()
         cal_event.add('summary', event['summary'])
+        cal_event.add('description', event['description'])
         cal_event.add('dtstart', event['dtstart'])
         cal_event.add('dtend', event['dtend'])
         cal.add_component(cal_event)
@@ -101,9 +103,10 @@ if uploaded_file is not None:
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
     team_name = st.text_input("Gib den Namen deiner Mannschaft ein, genauso wie er in der Vorschau angezeigt wird", "")
+    team_info = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein", "")
 
     # Definiere 'events' und 'ics_content' außerhalb des Button-Drucks
-    events = process_schedule(schedule_text, team_name)
+    events = process_schedule(schedule_text, team_name, team_info)
     ics_content = create_ics(events, team_name)
 
     if st.button('Vorschau des ICS Files') and team_name:
