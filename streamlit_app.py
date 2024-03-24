@@ -59,9 +59,9 @@ def process_schedule(text, team_name):
 
 
 # Funktion zur Erstellung des ICS-Dateiinhalts
-def create_ics(events):
+def create_ics(events, team_name):
     cal = Calendar()
-    cal.add('prodid', '-//SV Dörfleins//Match Schedule//EN')
+    cal.add('prodid', f'-//{team_name}//Match Schedule//EN')  # Verwenden Sie team_name im PRODID
     cal.add('version', '2.0')
     for event in events:
         cal_event = Event()
@@ -89,11 +89,11 @@ if uploaded_file is not None:
 
     # Eingabefeld für den Mannschaftsnamen
     team_name = st.text_input("Geben Sie den Namen der Mannschaft ein", "")
-
-    if st.button('Vorschau ICS-Datei') and team_name:
+    
+if st.button('Vorschau ICS-Datei') and team_name:
         events = process_schedule(schedule_text, team_name)
-        ics_content = create_ics(events)
+        ics_content = create_ics(events, team_name)  # Übergeben Sie team_name an create_ics
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
 
     # Separate Schaltfläche zum Herunterladen der ICS-Datei
-    st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
+    st.download_button("Download ICS-Datei", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
