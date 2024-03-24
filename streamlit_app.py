@@ -78,14 +78,12 @@ def create_ics(events, team_name):
         cal_event = Event()
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
-        cal_event.add('dtstart', event['dtstart'])
-        cal_event.add('dtend', event['dtend'])
+        
+
+        # Zeitwerte direkt als Text einfügen
+        cal_event.add('dtstart', '20240505T090000', parameters={'TZID': 'Europe/Berlin'})
+        cal_event.add('dtend', '20240505T140000', parameters={'TZID': 'Europe/Berlin'})
         cal_event.add('location', event['location'])
-
-        # Fügen Sie das 'TZID' für die Zeitzone hinzu
-        cal_event['dtstart'].params['TZID'] = 'Europe/Berlin'
-        cal_event['dtend'].params['TZID'] = 'Europe/Berlin'
-
         cal.add_component(cal_event)
     
     return cal.to_ical()
