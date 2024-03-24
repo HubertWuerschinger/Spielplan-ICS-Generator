@@ -74,7 +74,7 @@ def create_ics(events, team_name):
 # Streamlit App
 st.title("MyBigPoint Spielplan-ICS-Generator")
 
-uploaded_file = st.file_uploader("Laden deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
+uploaded_file = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
 
 # Eingabefelder für die Koordinaten
 st.write=("Passe die Koordinaten für den relevanten Bereich an, falls notwendig")
