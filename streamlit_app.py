@@ -82,6 +82,8 @@ y1 = st.number_input("Y1-Koordinate", min_value=0, value=0)
 x2 = st.number_input("X2-Koordinate", min_value=0, value=100)
 y2 = st.number_input("Y2-Koordinate", min_value=0, value=100)
 
+# ...
+
 if uploaded_file is not None:
     bbox = (x1, y1, x2, y2)
     schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
@@ -89,10 +91,12 @@ if uploaded_file is not None:
 
     team_name = st.text_input("Geben Sie den Namen der Mannschaft ein", "")
 
+    # Definiere 'events' und 'ics_content' außerhalb des Button-Drucks
+    events = process_schedule(schedule_text, team_name)
+    ics_content = create_ics(events, team_name)
+
     if st.button('Vorschau ICS-Datei') and team_name:
-        events = process_schedule(schedule_text, team_name)
-        ics_content = create_ics(events, team_name)
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
 
-    # Stellen Sie sicher, dass die Einrückung hier korrekt ist
+    # Download-Button ist jetzt korrekt definiert und wird nur aktiv, wenn 'ics_content' vorhanden ist
     st.download_button("Download ICS-Datei", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
