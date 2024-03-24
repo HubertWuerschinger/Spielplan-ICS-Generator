@@ -10,8 +10,9 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
     text = ""
     with pdfplumber.open(uploaded_file) as pdf:
         for page in pdf.pages:
-            cropped_page = page.within_bbox(bbox)
+            cropped_page = page.crop(bbox)
             text += cropped_page.extract_text() or ""
+            st.image(cropped_page.to_image(resolution=150))  # Zeigt Vorschau des Bereichs
     return text
 
 # Funktion zur Verarbeitung des Spielplans und Erstellung von Events
@@ -72,4 +73,5 @@ if uploaded_file is not None:
     if st.button('ICS-Datei erstellen'):
         processed_events = process_schedule(schedule_text)
         ics_content = create_ics(processed_events)
+        st.text_area("ICS-Datei Inhalt", ics_content.decode("utf-8"), height=300)  # Bearbeitbarer ICS-Inhalt
         st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
