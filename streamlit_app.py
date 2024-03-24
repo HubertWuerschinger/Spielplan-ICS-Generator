@@ -72,7 +72,8 @@ def create_ics(events, team_name):
     return cal.to_ical()
 
 # Streamlit App
-st.title("MyBigPoint Spielplan-ICS-Generator")
+# Streamlit App
+st.markdown("# SV Dörfleins Spielplan-ICS-Generator :tennis:")
 
 
 # Verwenden von st.markdown, um den Link zu Ihrem GitHub-Profil anzuzeigen
