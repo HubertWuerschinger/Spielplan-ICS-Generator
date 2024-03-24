@@ -73,7 +73,7 @@ def create_ics(events, team_name):
 
 # Streamlit App
 # Streamlit App
-st.markdown("# SV Dörfleins Spielplan-ICS-Generator :tennis:")
+st.markdown("# Spielplan-ICS-Generator :tennis:")
 
 
 # Verwenden von st.markdown, um den Link zu Ihrem GitHub-Profil anzuzeigen
