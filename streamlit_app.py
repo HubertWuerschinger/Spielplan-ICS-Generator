@@ -25,25 +25,24 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
 def process_schedule(text):
     events = []
     lines = text.split('\n')
-    date_pattern = r'(\d{2}\.\d{2}\.\d{4})'
-    game_pattern = r'(\d{2}:\d{2})\s(.+?)-(.+)'
+    date_pattern = r'(So\.|Mo\.|Di\.|Mi\.|Do\.|Fr\.|Sa\.)\s(\d{2}\.\d{2}\.\d{4})'
+    game_pattern = r'(\d{2}:\d{2})\s(.+)'
     current_date = None
 
     for line in lines:
-        date_match = re.search(date_pattern, line)
+        date_match = re.match(date_pattern, line)
         if date_match:
-            current_date = date_match.group(1)
+            _, current_date = date_match.groups()
 
         if current_date:
-            game_match = re.search(game_pattern, line)
+            game_match = re.match(game_pattern, line)
             if game_match:
-                time, team1, team2 = game_match.groups()
+                time, teams = game_match.groups()
                 datetime_str = f"{current_date} {time}"
                 dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                 dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
-                dt_end = dt_start + timedelta(hours=2)
-                summary = f"{team1.strip()} vs {team2.strip()}"
-                events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
+                dt_end = dt_start + timedelta(hours=2)  # assuming each event lasts 2 hours
+                events.append({"dtstart": dt_start, "dtend": dt_end, "summary": teams})
 
     return events
 
