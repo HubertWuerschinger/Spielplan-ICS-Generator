@@ -102,8 +102,8 @@ if uploaded_file is not None:
     schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
-    team_name = st.text_input("Gib den Namen deiner Mannschaft ein, genauso wie er in der Vorschau angezeigt wird", "")
-    team_info = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein", "")
+    team_name = st.text_input("Gib den Vereinsnamen ein, genauso wie er in der Vorschau angezeigt wird", "")
+    team_info = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein z.B. 1. Mannschaft Herren", "")
 
     # Definiere 'events' und 'ics_content' außerhalb des Button-Drucks
     events = process_schedule(schedule_text, team_name, team_info)
