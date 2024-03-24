@@ -54,7 +54,13 @@ def process_schedule(text, team_name, team_info):
 
                     summary = f"{team1} vs {team2}"
                     description = f"{team_info}\nMannschaft: {team_name}"
-                    location = team_name  # Ort des Vereins als Ort im Kalender verwenden
+                    
+                    # Bestimme die Location basierend auf dem ersten genannten Verein
+                    if teams.startswith(team_name):
+                        location = team1
+                    else:
+                        location = team2
+                    
                     events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description, "location": location})
 
     return events
