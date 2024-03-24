@@ -73,7 +73,9 @@ def create_ics(events, team_name):
 
 # Streamlit App
 st.title("MyBigPoint Spielplan-ICS-Generator")
-st.write('Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)')
+# Verwenden von st.write, um einen Link zu Ihrem GitHub-Profil anzuzeigen
+st.write('Besuchen Sie mein GitHub-Profil:')
+st.write('[![GitHub Logo](https://cdn.icon-icons.com/icons2/2248/PNG/512/github_icon_135161.png)](https://github.com/HubertWuerschinger)')
 uploaded_file = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
 
 # Eingabefelder für die Koordinaten
