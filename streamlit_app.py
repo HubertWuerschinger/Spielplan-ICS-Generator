@@ -74,12 +74,6 @@ def create_ics(events, team_name):
         cal_event = Event()
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
-        berlin_timezone = pytz.timezone('Europe/Berlin')
-
-    for event in events:
-        cal_event = Event()
-        cal_event.add('summary', event['summary'])
-        cal_event.add('description', event['description'])
 
         # Lokalisieren Sie die Zeit in der Zeitzone Berlin
         dt_start = berlin_timezone.localize(event['dtstart'], is_dst=None)
