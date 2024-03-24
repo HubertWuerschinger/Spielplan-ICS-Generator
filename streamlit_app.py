@@ -16,8 +16,11 @@ def extract_text_from_pdf_area(uploaded_file, bbox):
             text += cropped_page.extract_text() or ""
             image_stream = io.BytesIO()
             cropped_page.to_image(resolution=150).save(image_stream, format="PNG")
-            pil_image = Image.open(image_stream)
-            st.image(pil_image)
+            image_stream.seek(0)  # Zurücksetzen des Stream-Zeigers
+            with Image.open(image_stream) as pil_image:
+                st.image(pil_image)
+            # Schließen und Freigeben des Bildspeichers
+            image_stream.close()
     return text
 
 # Anpassen der Logik zur korrekten Verarbeitung des Textes
@@ -98,9 +101,10 @@ if uploaded_file is not None:
     team_name = st.text_input("Gib den Vereinsnamen ein, genauso wie er in der Vorschau angezeigt wird", "")
     team_info = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein z.B. 1. Mannschaft Herren", "")
 
-    if st.button('Erstelle ICS-Datei'):
+       if st.button('Erstelle ICS-Datei'):
         events = process_schedule(schedule_text, team_name, team_info)
         ics_content = create_ics(events, team_name)
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
         st.download_button("Download der ICS-Datei für Outlook oder Google Kalender", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
-
+    # Optional: Löschen von großen, nicht mehr benötigten Datenstrukturen
+    del schedule_text, events
