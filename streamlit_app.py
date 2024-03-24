@@ -75,9 +75,17 @@ def create_ics(events, team_name):
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
 
-        # Zeitwerte direkt als Text einfügen
-        cal_event.add('dtstart', '20240505T090000', parameters={'TZID': 'Europe/Berlin'})
-        cal_event.add('dtend', '20240505T140000', parameters={'TZID': 'Europe/Berlin'})
+        # Konvertieren Sie String in datetime-Objekte
+        dt_start = datetime.strptime('20240505T090000', '%Y%m%dT%H%M%S')
+        dt_end = datetime.strptime('20240505T140000', '%Y%m%dT%H%M%S')
+
+        # Zeitzone hinzufügen
+        tz = pytz.timezone('Europe/Berlin')
+        dt_start = tz.localize(dt_start)
+        dt_end = tz.localize(dt_end)
+
+        cal_event.add('dtstart', dt_start)
+        cal_event.add('dtend', dt_end)
         cal_event.add('location', event['location'])
 
         cal.add_component(cal_event)
