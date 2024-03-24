@@ -87,7 +87,8 @@ if uploaded_file is not None:
     schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
-    team_name = "SV Dörfleins"
+    # Eingabefeld für den Mannschaftsnamen
+    team_name = st.text_input("Geben Sie den Namen der Mannschaft ein (z.B. SV Dörfleins)", "SV Dörfleins")
     events = process_schedule(schedule_text, team_name)
     ics_content = create_ics(events)
 
@@ -95,5 +96,5 @@ if uploaded_file is not None:
         # Anzeige des ICS-Dateiinhalts (Vorschau)
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
 
-   # Download-Button immer anzeigen, aber er wird nur funktionieren, nachdem die ICS-Datei erstellt wurde
+    # Separate Schaltfläche zum Herunterladen der ICS-Datei
     st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
