@@ -67,20 +67,27 @@ def process_schedule(text, team_name, team_info):
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events, team_name):
     cal = Calendar()
-    cal.add('prodid', f'-//{team_name}//Match Schedule//EN')  # Verwenden Sie team_name im PRODID
+    cal.add('prodid', f'-//{team_name}//Match Schedule//EN')
     cal.add('version', '2.0')
+
+    # Eigene Eigenschaften hinzufügen
+    cal.add('X-MS-OLK-FORCEINSPECTOROPEN', 'TRUE')
+    cal.add('X-WR-TIMEZONE', 'Europe/Berlin')
+
     for event in events:
         cal_event = Event()
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
         cal_event.add('dtstart', event['dtstart'])
         cal_event.add('dtend', event['dtend'])
-        cal_event.add('location', event['location'])  # Ort hinzufügen
-                    
-         # Fügen Sie das 'TZID' für die Zeitzone hinzu
+        cal_event.add('location', event['location'])
+
+        # Fügen Sie das 'TZID' für die Zeitzone hinzu
         cal_event['dtstart'].params['TZID'] = 'Europe/Berlin'
         cal_event['dtend'].params['TZID'] = 'Europe/Berlin'
+
         cal.add_component(cal_event)
+    
     return cal.to_ical()
 
 # Streamlit App
