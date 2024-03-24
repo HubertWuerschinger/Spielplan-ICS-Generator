@@ -56,10 +56,7 @@ def process_schedule(text, team_name, team_info):
                     description = f"{team_info}\nMannschaft: {team_name}"
                     
                     # Bestimme die Location basierend auf dem ersten genannten Verein
-                    if teams.startswith(team_name):
-                        location = team1
-                    else:
-                        location = team2
+                    location = team1 if teams.index(team1) < teams.index(team2) else team2
                     
                     events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description, "location": location})
 
