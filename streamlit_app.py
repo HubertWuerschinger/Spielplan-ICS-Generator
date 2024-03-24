@@ -87,13 +87,12 @@ if uploaded_file is not None:
     schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
-    # Eingabefeld für den Mannschaftsnamen
     team_name = st.text_input("Geben Sie den Namen der Mannschaft ein", "")
-    
-if st.button('Vorschau ICS-Datei') and team_name:
+
+    if st.button('Vorschau ICS-Datei') and team_name:
         events = process_schedule(schedule_text, team_name)
-        ics_content = create_ics(events, team_name)  # Übergeben Sie team_name an create_ics
+        ics_content = create_ics(events, team_name)
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
 
-    # Separate Schaltfläche zum Herunterladen der ICS-Datei
+    # Stellen Sie sicher, dass die Einrückung hier korrekt ist
     st.download_button("Download ICS-Datei", data=ics_content, file_name=f"{team_name}_schedule.ics", mime="text/calendar")
