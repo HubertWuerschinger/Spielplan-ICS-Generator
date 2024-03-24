@@ -100,8 +100,7 @@ if uploaded_file is not None:
 
     team_name = st.text_input("Gib den Vereinsnamen ein, genauso wie er in der Vorschau angezeigt wird", "")
     team_info = st.text_input("Gib eine Zusatzinfo für deine Mannschaft ein z.B. 1. Mannschaft Herren", "")
-
-       if st.button('Erstelle ICS-Datei'):
+    if st.button('Erstelle ICS-Datei'):
         events = process_schedule(schedule_text, team_name, team_info)
         ics_content = create_ics(events, team_name)
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
