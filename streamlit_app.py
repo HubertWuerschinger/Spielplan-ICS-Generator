@@ -72,7 +72,9 @@ def create_ics(events, team_name):
     return cal.to_ical()
 
 # Streamlit App
+# Streamlit App
 st.markdown("# Spielplan-ICS-Generator :tennis:")
+
 
 # Verwenden von st.markdown, um den Link zu Ihrem GitHub-Profil anzuzeigen
 st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
@@ -81,10 +83,11 @@ st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://githu
 github_logo_url = "https://github.githubassets.com/assets/GitHub-Logo-ee398b662d42.png"
 st.image(github_logo_url, width=100)  # Anpassen der Breite nach Bedarf
 
+
 uploaded_file = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
 
 # Eingabefelder für die Koordinaten
-st.write("Passe die Koordinaten für den relevanten Bereich an, falls notwendig")
+st.write=("Passe die Koordinaten für den relevanten Bereich an, falls notwendig")
 x1 = st.number_input("X1-Koordinate", min_value=0, value=400)
 y1 = st.number_input("Y1-Koordinate", min_value=0, value=100)
 x2 = st.number_input("X2-Koordinate", min_value=0, value=750)
