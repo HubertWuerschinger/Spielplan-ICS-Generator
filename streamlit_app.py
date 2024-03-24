@@ -53,6 +53,7 @@ def process_schedule(text, team_name):
 
 
 
+
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events):
     cal = Calendar()
