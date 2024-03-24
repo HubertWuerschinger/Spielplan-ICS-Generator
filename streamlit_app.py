@@ -39,16 +39,24 @@ def process_schedule(text, team_name):
             if game_match:
                 time, teams = game_match.groups()
                 if team_name in teams:
-                    team1, team2 = teams.split(" - ")
+                    # Teilt den String basierend auf der Position von "SV Dörfleins"
+                    if teams.startswith(team_name):
+                        team1 = team_name
+                        team2 = teams[len(team_name):].strip()
+                    else:
+                        team1 = teams.split(team_name)[0].strip()
+                        team2 = team_name
+
                     datetime_str = f"{current_date} {time}"
                     dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                     dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
                     dt_end = dt_start + timedelta(hours=2)
 
-                    summary = f"{team1.strip()} vs {team2.strip()}"
+                    summary = f"{team1} vs {team2}"
                     events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
 
     return events
+
 
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events):
