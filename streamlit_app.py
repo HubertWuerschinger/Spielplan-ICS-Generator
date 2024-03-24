@@ -95,6 +95,5 @@ if uploaded_file is not None:
         # Anzeige des ICS-Dateiinhalts (Vorschau)
         st.text_area("Vorschau ICS-Datei", ics_content.decode("utf-8"), height=300)
 
-    # Separate Schaltfläche zum Herunterladen der ICS-Datei
-    if st.button('Download ICS-Datei'):
-        st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
+   # Download-Button immer anzeigen, aber er wird nur funktionieren, nachdem die ICS-Datei erstellt wurde
+    st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
