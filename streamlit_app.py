@@ -70,18 +70,21 @@ def create_ics(events, team_name):
     cal.add('prodid', f'-//{team_name}//Match Schedule//EN')
     cal.add('version', '2.0')
     berlin_timezone = pytz.timezone('Europe/Berlin')
-    
+
     for event in events:
         cal_event = Event()
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
 
-        # Lokalisieren Sie die Zeit in der Zeitzone Berlin
-        dt_start = berlin_timezone.localize(event['dtstart'], is_dst=None)
-        dt_end = berlin_timezone.localize(event['dtend'], is_dst=None)
+        # Konvertieren der datetime-Objekte in naive (zeitlose) und dann lokalisieren
+        dt_start_naive = event['dtstart'].replace(tzinfo=None)
+        dt_end_naive = event['dtend'].replace(tzinfo=None)
 
-        cal_event.add('dtstart', dt_start)
-        cal_event.add('dtend', dt_end)
+        dt_start_berlin = berlin_timezone.localize(dt_start_naive, is_dst=None)
+        dt_end_berlin = berlin_timezone.localize(dt_end_naive, is_dst=None)
+
+        cal_event.add('dtstart', dt_start_berlin)
+        cal_event.add('dtend', dt_end_berlin)
         cal_event.add('location', event['location'])
 
         cal.add_component(cal_event)
