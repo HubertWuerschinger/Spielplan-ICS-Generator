@@ -73,12 +73,15 @@ def create_ics(events, team_name):
 
 # Streamlit App
 st.title("MyBigPoint Spielplan-ICS-Generator")
+
+
 # Verwenden von st.markdown, um den Link zu Ihrem GitHub-Profil anzuzeigen
 st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
 
 # Anzeige des GitHub-Logos mit st.image
 github_logo_url = "https://cdn.icon-icons.com/icons2/2248/PNG/512/github_icon_135161.png"
 st.image(github_logo_url, width=100)  # Anpassen der Breite nach Bedarf
+
 
 uploaded_file = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
 
