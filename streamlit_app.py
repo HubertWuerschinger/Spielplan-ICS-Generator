@@ -50,11 +50,6 @@ def process_schedule(text, team_name):
 
     return events
 
-
-
-
-
-
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events):
     cal = Calendar()
@@ -81,13 +76,12 @@ y2 = st.number_input("Y2-Koordinate", min_value=0, value=100)
 
 if uploaded_file is not None:
     bbox = (x1, y1, x2, y2)
-    schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)  # Definiere 'schedule_text' hier
+    schedule_text = extract_text_from_pdf_area(uploaded_file, bbox)
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
 
-if st.button('ICS-Datei erstellen'):
- # Stelle sicher, dass 'schedule_text' vor diesem Punkt definiert wurde
-    team_name = "SV Dörfleins"
-    events = process_schedule(schedule_text, team_name)
-    ics_content = create_ics(events)
-    st.text_area("ICS-Datei Inhalt", ics_content.decode("utf-8"), height=300)  # Bearbeitbarer ICS-Inhalt
-    st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
+    if st.button('ICS-Datei erstellen'):
+        team_name = "SV Dörfleins"
+        events = process_schedule(schedule_text, team_name)
+        ics_content = create_ics(events)
+        st.text_area("ICS-Datei Inhalt", ics_content.decode("utf-8"), height=300)
+        st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
