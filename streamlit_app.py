@@ -70,10 +70,6 @@ def create_ics(events, team_name):
     cal.add('prodid', f'-//{team_name}//Match Schedule//EN')
     cal.add('version', '2.0')
 
-    # Eigene Eigenschaften hinzufügen
-    cal.add('X-MS-OLK-FORCEINSPECTOROPEN', 'TRUE')
-    cal.add('X-WR-TIMEZONE', 'Europe/Berlin')
-
     for event in events:
         cal_event = Event()
         cal_event.add('summary', event['summary'])
