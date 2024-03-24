@@ -98,15 +98,10 @@ def create_ics(events, team_name):
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
 
-        # Setzen der Zeiten mit festem Offset
-        # Annahme: Die Zeiten in den Events sind bereits in der richtigen Zeitzone
-        cal_event.add('dtstart', event['dtstart'])
-        cal_event.add('dtend', event['dtend'])
+        # Fügen Sie das 'TZID' für die Zeitzone direkt in dtstart und dtend hinzu
+        cal_event.add('dtstart', event['dtstart'], parameters={'TZID': 'Europe/Berlin'})
+        cal_event.add('dtend', event['dtend'], parameters={'TZID': 'Europe/Berlin'})
         cal_event.add('location', event['location'])
-
-        # Fügen Sie das 'TZID' für die Zeitzone hinzu
-        cal_event['dtstart'].params['TZID'] = 'Europe/Berlin'
-        cal_event['dtend'].params['TZID'] = 'Europe/Berlin'
 
         cal.add_component(cal_event)
 
