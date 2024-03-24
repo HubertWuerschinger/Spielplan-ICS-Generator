@@ -40,18 +40,25 @@ def process_schedule(text, team_name, team_info):
             if game_match:
                 time, teams = game_match.groups()
                 if team_name in teams:
-                    # ...
+                    if teams.startswith(team_name):
+                        team1 = team_name
+                        team2 = teams[len(team_name):].strip()
+                    else:
+                        team1 = teams.split(team_name)[0].strip()
+                        team2 = team_name
+
                     datetime_str = f"{current_date} {time}"
                     dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                     dt_start = berlin_timezone.localize(dt_start)
 
-                    # Überprüfen, ob Sommerzeit gilt, und entsprechend anpassen
                     if dt_start.dst() != timedelta(0):
                         dt_start -= timedelta(hours=1)
 
                     dt_end = dt_start + timedelta(hours=2)
-                    # ...
                     
+                    summary = f"{team1} vs {team2}"
+                    description = f"{team_info}\nMannschaft: {team_name}"
+                    location = team1 if teams.index(team1) < teams.index(team2) else team2
                     events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary, "description": description, "location": location})
 
     return events
