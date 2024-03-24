@@ -32,20 +32,26 @@ def process_schedule(text, team_name):
     for line in lines:
         date_match = re.search(date_pattern, line)
         if date_match:
-            current_date = date_match.group(0)[-10:]
+            current_date = date_match.group(0)[-10:]  # Datum extrahieren
 
         if current_date:
             game_match = re.search(game_pattern, line)
             if game_match:
-                time, teams = game_match.groups()
-                if '-' in teams and team_name in teams:  # Überprüft, ob die Zeile zwei Teams enthält
-                    team1, team2 = teams.split(" - ")
+                time, teams_string = game_match.groups()
+                # Teilt die Zeile an der Stelle auf, wo "team_name" steht
+                if team_name in teams_string:
+                    # Finde die Position von "team_name" im String
+                    team_index = teams_string.find(team_name)
+                    # Ermittle die beiden Teams, indem der String an der gefundenen Position geteilt wird
+                    team1 = teams_string[:team_index].strip()
+                    team2 = teams_string[team_index:].strip()
+
                     datetime_str = f"{current_date} {time}"
                     dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                     dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
                     dt_end = dt_start + timedelta(hours=2)
 
-                    summary = f"{team1.strip()} vs {team2.strip()}"
+                    summary = f"{team1} vs {team2}"
                     events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
 
     return events
