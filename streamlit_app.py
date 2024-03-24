@@ -18,6 +18,7 @@ def process_schedule(text):
     date_pattern = r'(\d{2}\.\d{2}\.\d{4})'
     game_pattern = r'(\d{2}:\d{2})\s(.+?)-(.+)'
     current_date = None
+    processed_text = ""
 
     for line in lines:
         date_match = re.search(date_pattern, line)
@@ -29,13 +30,14 @@ def process_schedule(text):
             if game_match:
                 time, team1, team2 = game_match.groups()
                 datetime_str = f"{current_date} {time}"
+                processed_text += f"{datetime_str} {team1} - {team2}\n"
                 dt_start = datetime.strptime(datetime_str, "%d.%m.%Y %H:%M")
                 dt_start = pytz.timezone("Europe/Berlin").localize(dt_start)
                 dt_end = dt_start + timedelta(hours=2)
                 summary = f"{team1.strip()} vs {team2.strip()}"
                 events.append({"dtstart": dt_start, "dtend": dt_end, "summary": summary})
 
-    return events
+    return events, processed_text
 
 # Funktion zur Erstellung des ICS-Dateiinhalts
 def create_ics(events):
@@ -58,6 +60,7 @@ uploaded_file = st.file_uploader("Laden Sie den Spielplan als PDF hoch", type="p
 if uploaded_file is not None:
     schedule_text = extract_text_from_pdf(uploaded_file)
     schedule_text = st.text_area("Bearbeitbarer Spielplan", schedule_text, height=300)
-    processed_events = process_schedule(schedule_text)
+    processed_events, processed_text = process_schedule(schedule_text)
+    processed_text = st.text_area("Verarbeiteter Text für ICS-Datei", processed_text, height=300)
     ics_content = create_ics(processed_events)
     st.download_button("Download ICS-Datei", data=ics_content, file_name="sv_doerfleins_schedule.ics", mime="text/calendar")
