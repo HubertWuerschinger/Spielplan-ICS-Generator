@@ -69,20 +69,15 @@ def create_ics(events, team_name):
     cal = Calendar()
     cal.add('prodid', f'-//{team_name}//Match Schedule//EN')
     cal.add('version', '2.0')
-
+    berlin_timezone = pytz.timezone('Europe/Berlin')
     for event in events:
         cal_event = Event()
         cal_event.add('summary', event['summary'])
         cal_event.add('description', event['description'])
 
-        # Konvertieren Sie String in datetime-Objekte
-        dt_start = datetime.strptime('20240505T090000', '%Y%m%dT%H%M%S')
-        dt_end = datetime.strptime('20240505T140000', '%Y%m%dT%H%M%S')
-
-        # Zeitzone hinzufügen
-        tz = pytz.timezone('Europe/Berlin')
-        dt_start = tz.localize(dt_start)
-        dt_end = tz.localize(dt_end)
+        # Konvertieren der extrahierten Datums- und Zeitstrings in datetime-Objekte
+        dt_start = berlin_timezone.localize(event['dtstart'])
+        dt_end = berlin_timezone.localize(event['dtend'])
 
         cal_event.add('dtstart', dt_start)
         cal_event.add('dtend', dt_end)
@@ -91,6 +86,7 @@ def create_ics(events, team_name):
         cal.add_component(cal_event)
     
     return cal.to_ical()
+    
 
 # Streamlit App
 st.markdown("# Spielplan-ICS-Generator :tennis:")
