@@ -81,9 +81,8 @@ def create_ics(events, team_name):
 
 # Streamlit App
 st.markdown("# Spielplan-ICS-Generator :tennis:")
-st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
-github_logo_url = "https://github.githubassets.com/assets/GitHub-Logo-ee398b662d42.png"
-st.image(github_logo_url, width=100)  # Anpassen der Breite nach Bedarf
+
+
 
 uploaded_file = st.file_uploader("Lade deinen MyBigPoint Spielplan als PDF hoch", type="pdf")
 
@@ -111,3 +110,6 @@ if uploaded_file is not None:
             del schedule_text
         if 'events' in locals() or 'events' in globals():
             del events
+
+
+st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
