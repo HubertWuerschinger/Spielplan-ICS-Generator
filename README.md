@@ -1,7 +1,7 @@
 # Spielplan-ICS-Generator :tennis:
 Erstellung von ICS Files für die Mannschaftspiele aus MyBigPoint PDF
 Stürzt bei der Erstellung der ICS Files manchmal ab, dann die Streamlit App rebooten rechts im Menü
-Stand 25.03.2024 \
+Stand 25.03.2024\
 
 
 **Herausforderungen bei der Erstellung:**
