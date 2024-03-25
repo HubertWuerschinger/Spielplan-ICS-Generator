@@ -112,4 +112,4 @@ if uploaded_file is not None:
             del events
 
 
-st.markdown("Besuchen Sie mein GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
+st.markdown("Beta Version Stand: 25.03.2024 - GitHub-Profil: [HubertWuerschinger](https://github.com/HubertWuerschinger)")
