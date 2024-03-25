@@ -13,7 +13,7 @@ Stand 25.03.2024
   4. Abstürzten der Streamlit App bei Erstellung des ICS Files. Hier wurde noch keine Lösung gefunden. Reboot der App notwendig.
 
 Für die Programmierung wurde ChatGPT genutzt
- \
+ *\\
 English Version translated with DeepL:
 # Match schedule ICS generator :tennis:
 Creation of ICS files for the team matches from MyBigPoint PDF
