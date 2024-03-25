@@ -12,8 +12,8 @@ Stand 25.03.2024
   3. Format des ICS Files für die Spiele. Zeitzone muss richtig gesetzt werden (UTC), da in der Vorschau die Zeit richtig angezeigt wird, aber beim Import in Outlook oder Google dann um eine Stunde in der Zukunft liegt.
   4. Abstürzten der Streamlit App bei Erstellung des ICS Files. Hier wurde noch keine Lösung gefunden. Reboot der App notwendig.
 
-
-
+Für die Programmierung wurde ChatGPT genutzt
+ \
 English Version translated with DeepL:
 # Match schedule ICS generator :tennis:
 Creation of ICS files for the team matches from MyBigPoint PDF
@@ -28,5 +28,7 @@ Status 25.03.2024
      SV etc.
   3. format of the ICS file for the matches. Time zone must be set correctly (UTC), as the time is displayed correctly in the preview, but is then one hour in the future when imported into Outlook or Google.
   4. crashing of the Streamlit app when creating the ICS file. No solution has been found yet. Reboot of the app necessary.
+
+ChatGPT was used for the programming
 
 Translated with DeepL.com (free version)
